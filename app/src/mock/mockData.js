@@ -1,3 +1,97 @@
+import { range } from 'd3';
+
+const categories = [
+  { key:"sharpness", name:"Sharpness" },
+  { key:"cardio", name:"Cardio" },
+  { key:"postural", name:"Postural" },
+  { key:"technical", name:"Technical" },
+]
+
+const measures = [
+  //sharpness
+  { postInjuryValue:13.2, key:"s1", label:"S1", name:"", categoryKey:"sharpness" },
+  { postInjuryValue:13.2, key:"s2", label:"S2", name:"", categoryKey:"sharpness" },
+  { postInjuryValue:13.2, key:"s3", label:"S3", name:"", categoryKey:"sharpness" },
+  { postInjuryValue:13.2, key:"s4", label:"S4", name:"", categoryKey:"sharpness" },
+  { postInjuryValue:13.2, key:"s5", label:"S5", name:"", categoryKey:"sharpness" },
+  //cardio
+  { postInjuryValue:13.2, key:"c1", label:"C1", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c2", label:"C2", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c3", label:"C3", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c4", label:"C4", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c5", label:"C5", name:"", categoryKey:"cardio" },
+  //postural
+  { postInjuryValue:13.2, key:"p1", label:"P1", name:"", categoryKey:"postural" },
+  { postInjuryValue:13.2, key:"p2", label:"P2", name:"", categoryKey:"postural" },
+  { postInjuryValue:13.2, key:"p3", label:"P3", name:"", categoryKey:"postural" },
+  { postInjuryValue:13.2, key:"p4", label:"P4", name:"", categoryKey:"postural" },
+  { postInjuryValue:13.2, key:"p5", label:"P5", name:"", categoryKey:"postural" },
+  //technical
+  { postInjuryValue:13.2, key:"t1", label:"T1", name:"", categoryKey:"technical" },
+  { postInjuryValue:13.2, key:"t2", label:"T2", name:"", categoryKey:"technical" },
+  { postInjuryValue:13.2, key:"t3", label:"T3", name:"", categoryKey:"technical" },
+  { postInjuryValue:13.2, key:"t4", label:"T4", name:"", categoryKey:"technical" },
+  { postInjuryValue:13.2, key:"t5", label:"T5", name:"", categoryKey:"technical" },
+]
+
+const valuesForSessionsPostInjury = {
+  //cat 1 - sharpness
+  s1:[4, 4.2, 4.3, 4.8, 5.1, 5, 4.8, 4.7, 5, 5.2, 6, 6.5, 6, 6.7, 7, 7.1, 7.2, 8, 7.6, 7.5],
+  s2:[4.6, 5.2, 6, 6.5, 6,],
+  s3:[9, 9.5, 9.8, 9.9],
+  s4:[11, 11, 11.5, 10, 11.9],
+  s5:[10, 10.5, 10.6, 10.7, 11],
+  //cat 2 - cardio
+  c1:[9, 9.4, 9.7, 10.4],
+  c2:[7, 7.9, 7.8, 8.3],
+  c3:[9, 9.3, 10.2, 10.8],
+  c4:[8, 8.3, 8.9, 10],
+  c5:[10, 10.7, 10.9, 11.5],
+  //cat 3 - postural
+  p1:[11, 11.7, 11.9, 12.1],
+  p2:[11, 11, 11.6, 12.1],
+  p3:[12, 12.5, 12.8, 12.9],
+  p4:[13, 12.9, 13, 13.9],
+  p5:[10.7, 11.6, 11.9, 13],
+  //cat 4 - technical
+  t1:[10, 10.8, 13.7, 12.5],
+  t2:[11, 11.7, 11.7, 11.3],
+  t3:[11.5, 11.9, 12.7, 13.8],
+  t4:[10.3, 10.9, 10.8, 11.4],
+  t5:[13, 13.6, 12.7, 13.7],
+}
+
+export const getRehabData = (nrSessions=20) => {
+  return {
+    title:"James Stevens Rehabilitation Tracker",
+    desc:"Showing journey towards being ready to play/perform. When all charts are filled in 100%, it shows a perfect square which means he is ready.",
+    targetValues:measures.map(m => ({ measureKey:m.key, value:m.postInjuryValue })),
+    chartsData:range(1, nrSessions+1).map(n => createSessionData(n))
+  }
+}
+
+function createSessionData(sessionNr){
+  return {
+    key:`session-${sessionNr}`,
+    title:`Session ${sessionNr}`,
+    quadrantsData:[1,2,3,4].map(quadrantNr => createQuadrantData(sessionNr, quadrantNr))
+  }
+}
+
+function createQuadrantData(sessionNr, quadrantNr){
+  const quadrantCategory = categories[quadrantNr-1];
+  return {
+    key:`session-${sessionNr}-quadrant-${quadrantNr}`,
+    title:quadrantCategory.name,
+    values:measures
+      .filter(m => m.categoryKey === quadrantCategory.key)
+      .map(m => ({
+        label:m.label,
+        value:valuesForSessionsPostInjury[m.key] ? valuesForSessionsPostInjury[m.key][sessionNr-1] : null
+      }))
+  }
+}
+
 export const quadrantsBarChartsData = {
     title:"Quadrant Bar Chart Display",
     desc:"description of the charts goes here",

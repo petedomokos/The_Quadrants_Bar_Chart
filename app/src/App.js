@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import QuadrantsBarChart from './quadrantsBarChart/QuadrantsBarChart';
-import { quadrantsBarChartsData } from './mock/mockData';
+import { getRehabData } from './mock/mockData';
 
 function App() {
   return (
@@ -21,7 +21,7 @@ function App() {
         </a>
       </header>
       <div className="content">
-        <QuadrantsBarChart data={quadrantsBarChartsData} settings={{ nrRows: 2 }}/>
+        <QuadrantsBarChart data={getRehabData(4)} settings={{ nrRows: 2 }}/>
 
       </div>
     </div>

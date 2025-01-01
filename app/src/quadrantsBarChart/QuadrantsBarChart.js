@@ -64,6 +64,7 @@ const calcNrRowsAndCols = (nrRows, nrCols, nrItems, direction="portrait") => {
 }
 
 const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
+  console.log("Data", data)
   //local state
   const [chart, setChart] = useState(null);
   const [sizes, setSizes] = useState(null);
