@@ -65,7 +65,7 @@ export const getRehabData = (nrSessions=20) => {
   return {
     title:"James Stevens Rehabilitation Tracker",
     desc:"Showing journey towards being ready to play/perform. When all charts are filled in 100%, it shows a perfect square which means he is ready.",
-    targetValues:measures.map(m => ({ measureKey:m.key, value:m.postInjuryValue })),
+    targetValues:measures.map(m => ({ key:m.key, value:m.postInjuryValue })),
     chartsData:range(1, nrSessions+1).map(n => createSessionData(n))
   }
 }
@@ -86,7 +86,7 @@ function createQuadrantData(sessionNr, quadrantNr){
     values:measures
       .filter(m => m.categoryKey === quadrantCategory.key)
       .map(m => ({
-        label:m.label,
+        ...m,
         value:valuesForSessionsPostInjury[m.key] ? valuesForSessionsPostInjury[m.key][sessionNr-1] : null
       }))
   }

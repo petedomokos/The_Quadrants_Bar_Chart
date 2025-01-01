@@ -94,7 +94,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
       }else{
         //console.log("rows cols",nrRows, nrCols)
         //data
-        const processedChartsData = quadrantsBarChartLayout(data.chartsData, { nrCols });
+        const processedChartsData = quadrantsBarChartLayout(data, { nrCols });
         //console.log("processedData", processedChartsData)
         //settings
         chart
