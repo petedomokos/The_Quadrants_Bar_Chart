@@ -29,7 +29,6 @@ import { isNumber } from '../helpers/dataHelpers';
     //dimns for overall container
     const containerWidth = container.getBoundingClientRect().width;
     const containerHeight = container.getBoundingClientRect().height;
-    //console.log("w, h.........", width, height)
     const contentsWidth = containerWidth - (containerMargin.left || 0) - (containerMargin.right || 0);
     const contentsHeight = containerHeight - (containerMargin.top || 0) - (containerMargin.bottom || 0);
     //dimns for single chart
