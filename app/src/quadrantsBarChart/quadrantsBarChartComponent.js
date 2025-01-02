@@ -50,7 +50,7 @@ export default function quadrantsBarChart() {
         const maxContentsWidth = width - margin.left - margin.right;
         const maxContentsHeight = height - margin.top - margin.bottom;
         //set chartTitleheight to reduce down to a min
-        chartTitleHeight = d3.max([11, maxContentsHeight * 0.1]);
+        chartTitleHeight = d3.max([16, maxContentsHeight * 0.1]);
         //console.log("maxCW, maxCH chartTitH", maxContentsWidth, maxContentsHeight, chartTitleHeight)
         if(maxContentsWidth < 100 || maxContentsHeight < 120){
             //remove quad labels
@@ -80,7 +80,7 @@ export default function quadrantsBarChart() {
         barsAreaHeight = quadrantHeight - quadrantTitleHeight;
 
         //styles that are based on dimns
-        styles.chart.title.fontSize = chartTitleHeight * 0.6;
+        styles.chart.title.fontSize = chartTitleHeight * 0.5;
         styles.quadrant.title.fontSize = quadrantHeight * 0.11;
         styles.bar.fontSize = quadrantHeight * 0.09;;//d3.min([]) barsAreaHeight
         //console.log("title fontsize.........", styles.quadrant.title.fontSize)

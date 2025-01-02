@@ -21,7 +21,7 @@ function App() {
         </a>
       </header>
       <div className="content">
-        <QuadrantsBarChart data={getRehabData(16)} settings={{ nrRows: 2 }}/>
+        <QuadrantsBarChart data={getRehabData(24)} settings={{ nrRows: 3 }}/>
 
       </div>
     </div>
