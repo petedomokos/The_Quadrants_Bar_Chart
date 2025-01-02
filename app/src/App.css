@@ -15,7 +15,7 @@
 
 .App-header {
   background-color: #282c34;
-  height:50px;
+  height:80px;
   /*min-height: 100vh;*/
   display: flex;
   flex-direction: column;
@@ -41,23 +41,59 @@
 
 .content {
   min-height: calc(100vh - 50px);
+  padding:0 2.5% 1.5%;
   background-color: #282c34;
-
 }
 
 .quadrants-chart-root {
-  width:100%;
+  width:95%;
   height:80vh;
+  padding:1.5%;
   background:#F5F5F5;
-  border:solid;
 }
 
-.quadrants-chart-title {
+.quadrants-chart-header {
   width:100%;
-  height:0;
+  height:130px;
+  display:flex;
+  justify-content: space-between;
 }
 
 .quadrants-chart-container {
   width:100%;
-  height:100%;
+  height:calc(100% - 130px);
+}
+
+.quadrants-chart-title {
+  height:30px;
+  padding:10px;
+  font-size:1.3rem;
+  display:flex;
+}
+
+.quadrants-chart-desc {
+  height:60px;
+  padding:5px 10px;
+  font-size:0.8rem;
+  display:flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.quadrants-chart-desc div{
+  padding:2px;
+}
+
+.player-name {
+  padding:10px;
+  display:flex;
+}
+
+.player-name .label {
+  padding:0 5px;
+  color:#4169E1;
+}
+
+.player-name .name {
+  padding:0 5px;
 }

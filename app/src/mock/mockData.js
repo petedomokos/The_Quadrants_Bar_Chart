@@ -63,8 +63,13 @@ const valuesForSessionsPostInjury = {
 
 export const getRehabData = (nrSessions=20) => {
   return {
-    title:"James Stevens Rehabilitation Tracker",
-    desc:"Showing journey towards being ready to play/perform. When all charts are filled in 100%, it shows a perfect square which means he is ready.",
+    title:"Rehab Tracker of Post-Injury Training Sessions",
+    desc:[
+        "Shows player's journey towards being ready to perform, based on pre-injury indicators across 4 categories.",
+        "When all bars are filled in 100%, it shows a perfect square which means the player is back to pre-injury levels.",
+        "Click on a chart to enlarge/reduce a category."
+    ],
+    playerName:"James Stevens",
     targetValues:measures.map(m => ({ key:m.key, value:m.postInjuryValue })),
     chartsData:range(1, nrSessions+1).map(n => createSessionData(n))
   }

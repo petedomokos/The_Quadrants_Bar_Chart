@@ -1,6 +1,9 @@
 import * as d3 from 'd3';
 import { isNumber } from '../helpers/dataHelpers';
 import { fadeInOut, remove } from '../helpers/domHelpers';
+import { COLOURS } from "../constants";
+
+const { BLUE, GREY } = COLOURS;
 
 export default function quadrantsBarChart() {
     // settings that apply to all quadrantsBartCharts, in case there is more than 1 eg a row of players
@@ -106,7 +109,7 @@ export default function quadrantsBarChart() {
             //or just remove the init-update functions altogether
             //bg
             container.append("rect").attr("class", "chart-bg")
-                //.attr("stroke", "grey")
+                .attr("stroke","none")// "grey")
                 .attr("fill", "transparent");
 
             const contentsG = container.append("g").attr("class", "contents");
@@ -120,9 +123,13 @@ export default function quadrantsBarChart() {
             const chartContentsG = contentsG.append("g").attr("class", "chart-contents");
 
             //title
-            chartTitleG.append("text").attr("class", "primary")
-                .attr("text-anchor", "middle")
-                .attr("dominant-baseline", "central");
+            chartTitleG
+                .append("text")
+                    .attr("class", "primary")
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "central")
+                        .attr("opacity", 0.7)
+                        .attr("stroke-width", 0.1);
 
             /*chartTitleG.append("rect").attr("class", "chart-title-bg")
                 .attr("stroke", "black")
@@ -139,6 +146,7 @@ export default function quadrantsBarChart() {
             container.select("rect.chart-bg")
                 .attr("width", `${width}px`)
                 .attr("height", `${height}px`)
+                .attr("cursor", isNumber(selectedQuadrantIndex) ? "pointer" : null)
                 .on("click", e => {
                     if(isNumber(selectedQuadrantIndex)){
                         setSelectedQuadrantIndex("");
@@ -190,6 +198,7 @@ export default function quadrantsBarChart() {
             quadrantContainerG.enter()
                 .append("g")
                     .attr("class", (d,i) => `quadrant-container quandrant-container-${d.key}`)
+                    .attr("cursor", "pointer")
                     .each(function(d,i){
                         const quadrantContainerG = d3.select(this);
                         const quadrantG = quadrantContainerG.append("g").attr("class", "quadrant")
@@ -199,7 +208,8 @@ export default function quadrantsBarChart() {
                                 .attr("class", "quadrant-title")
                                 .attr("text-anchor", "middle")
                                 .attr("dominant-baseline", "central")
-                                .attr("opacity", withQuadrantTitles ? 1 : 0)
+                                .attr("stroke-width", 0.1)
+                                .attr("opacity", withQuadrantTitles ? 0.7 : 0)
                                 .attr("display", withQuadrantTitles ? null : "none");
 
                         /*quadrantG
@@ -213,7 +223,7 @@ export default function quadrantsBarChart() {
                         barsAreaG
                             .append("rect")
                                 .attr("class", "bars-area-bg")
-                                .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? "grey" : "blue")
+                                .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? GREY : BLUE)
                                 .attr("stroke-width", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? 0.1 : 0.5)
                                 .attr("fill", "transparent");
                          
@@ -258,7 +268,7 @@ export default function quadrantsBarChart() {
                             .text(quadD.title)
                                 .transition()
                                 .duration(200)
-                                    .attr("opacity", withQuadrantTitles ? 1 : 0)
+                                    .attr("opacity", withQuadrantTitles ? 0.6 : 0)
                                     .on("end", function(){ d3.select(this).attr("display", withQuadrantTitles ? null : "none") });
                         
                         /*
@@ -277,7 +287,7 @@ export default function quadrantsBarChart() {
                         barsAreaG.select("rect.bars-area-bg")
                                 .transition()
                                 .duration(500)
-                                .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? "grey" : "blue")
+                                .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? GREY : BLUE)
                                 .attr("stroke-width", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? 0.1 : 0.5)
 
                         //bars
@@ -304,7 +314,7 @@ export default function quadrantsBarChart() {
                                         .attr("class", "bar")
                                         .attr("width", barWidth)
                                         .attr("height", barHeight)
-                                        .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? "blue" : "grey");
+                                        .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
 
                                     /*
                                     const labelG = barG.append("g")
@@ -340,7 +350,7 @@ export default function quadrantsBarChart() {
                                         .duration(500)
                                             .attr("width", barWidth)
                                             .attr("height", barHeight)
-                                            .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? "blue" : "grey");
+                                            .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
 
                                     //@todo- work out why (Math.cos(Math.PI/4) * barLabelHeight) doesnt shift teh label down enough
                                     const labelX = i < 2 ? -barWidth/2 + barLabelHeight * 0.3 : barWidth/2 - barLabelHeight * 0.3;

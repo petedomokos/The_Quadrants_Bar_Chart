@@ -17,11 +17,11 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          The 4 Quadrants Bar Chart
+          The 4 Quadrants Bar Chart: Sports Injury Example
         </a>
       </header>
       <div className="content">
-        <QuadrantsBarChart data={getRehabData(4)} settings={{ nrRows: 2 }}/>
+        <QuadrantsBarChart data={getRehabData(16)} settings={{ nrRows: 2 }}/>
 
       </div>
     </div>

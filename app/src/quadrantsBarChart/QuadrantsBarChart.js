@@ -121,7 +121,21 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
       {/**<Typography variant="h6" className="quadrants-chart-title">
           Quadrant Bar Chart
         </Typography>*/}
-      {/**<div className="quadrants-chart-title">{data.title || ""}</div>*/}
+      <div className="quadrants-chart-header">
+        <div>
+          <div className="quadrants-chart-title">{data.title || ""}</div>
+          <div className="quadrants-chart-desc">
+            {data.desc?.map((line, i) => 
+              <div key={`line-${i}`}>{line}</div> )}
+          </div>
+        </div>
+        <div>
+          <div className="player-name">
+            <div className="label">player:</div>
+            <div className="name">{data.playerName}</div>
+          </div>
+        </div>
+      </div>
       <svg ref={chartsRef} className="quadrants-chart-container">
       </svg>
     </div>
