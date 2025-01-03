@@ -23,44 +23,35 @@ import { isNumber } from '../helpers/dataHelpers';
   },
 }))*/
 
+  const calcNrCols = (containerWidth/*, minChartWidth = 80*/) => {
+    if(containerWidth >= 800){ return 8; }
+    if(containerWidth >= 600) { return 6; }
+    if(containerWidth >= 400) { return 4; }
+    if(containerWidth >= 300) { return 2; }
+    return 1;  
+  }
   //@TODO - consider using viewbox instead fro timeSeries as AR should be constant, but not for beeSwarms
-  const calculateChartSizes = (container, nrRows, nrCols, containerMargin={}, chartMargin={}) => {
+  const calculateChartSizesAndGridLayout = (container, nrItems, containerMargin={}, chartMargin={}) => {
     //console.log("nrRows cols", nrRows, nrCols)
     //dimns for overall container
     const containerWidth = container.getBoundingClientRect().width;
     const containerHeight = container.getBoundingClientRect().height;
+    //console.log("w h", containerWidth, containerHeight)
     const contentsWidth = containerWidth - (containerMargin.left || 0) - (containerMargin.right || 0);
     const contentsHeight = containerHeight - (containerMargin.top || 0) - (containerMargin.bottom || 0);
+
+    //nrRows and cols
+    const nrCols = calcNrCols(containerWidth);
+    const nrRows = nrItems % nrCols === 0 ? nrItems/nrCols : Math.floor(nrItems/nrCols) + 1;
+
     //dimns for single chart
     const width = contentsWidth / nrCols;
     const height = contentsHeight / nrRows
     const marginValues = typeof chartMargin === "function" ? chartMargin(width, height) : chartMargin;
     const margin = { left:0, right:0, top:0, bottom:0, ...marginValues }
 
-    return { width, height, margin }
+    return { width, height, margin, nrRows, nrCols, nrCharts:nrItems }
   }
-
-const calcNrRowsAndCols = (nrRows, nrCols, nrItems, direction="portrait") => {
-  //console.log("calcRowsCols items...", nrItems)
-  //case A - only 1 item
-  if(nrItems < 2) { return { rows: 1, cols: 1 } }
-  //case B - auto set to make it as square as possible
-  if(!nrRows && !nrCols){
-    //@todo :pick the pair of factors that are closest to each other
-    //eg if 10, then 5 x 2
-    //note also, if dir is portrait, then its 2 cols, if its landscape, its 5 cols
-    //temp  - default to 1 row
-    return { rows: 1, cols:nrItems }
-  }
-  //case C - user sets custom nrRows
-  if(isNumber(nrRows)) { 
-    return { rows:nrRows, cols: nrItems % nrRows === 0 ? nrItems/nrRows : Math.floor(nrItems/nrRows) + 1 }
-  }
-  //case D - user sets custom nrCols and doesnt set rows
-  if(!isNumber(nrRows) && isNumber(nrCols)) {
-    return { cols:nrCols, rows: nrItems % nrCols === 0 ? nrItems/nrCols : Math.floor(nrItems/nrCols) + 1 }
-  }
-}
 
 const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
   console.log("Data", data)
@@ -68,9 +59,6 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
   const [chart, setChart] = useState(null);
   const [sizes, setSizes] = useState(null);
   const [selectedQuadrantIndex, setSelectedQuadrantIndex] = useState(null);
-  const nrRowsAndCols = calcNrRowsAndCols(settings.nrRows, settings.nrCols, data.chartsData.length);
-  const [nrRows, setNrRows] = useState(nrRowsAndCols.rows);
-  const [nrCols, setNrCols] = useState(nrRowsAndCols.cols);
 
   const containerMargin = { left:20, right:20, top:20, bottom:20 };
   const chartMargin = (width, height) => ({ left:width * 0.1, right:width * 0.1, top:height * 0.1, bottom:height * 0.1 });
@@ -87,22 +75,18 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
       if(!chart){
         //init
         setChart(() => quadrantsBarChart())
-        const chartSizes = calculateChartSizes(chartsRef.current, nrRows, nrCols, containerMargin, chartMargin);
+        const chartSizes = calculateChartSizesAndGridLayout(chartsRef.current, data.chartsData.length, containerMargin, chartMargin);
         //@todo next - clacsizes func must accomodate more than 1 xhart into its space
         setSizes(chartSizes)
       }else{
-        //console.log("rows cols",nrRows, nrCols)
         //data
-        const processedChartsData = quadrantsBarChartLayout(data, { nrCols });
+        const processedChartsData = quadrantsBarChartLayout(data, { nrCols: sizes.nrCols });
         //console.log("processedData", processedChartsData)
         //settings
         chart
             .sizes(sizes)
             .selectedQuadrantIndex(selectedQuadrantIndex)
             .setSelectedQuadrantIndex(setSelectedQuadrantIndex)
-            //.nrRows(nrRows)
-            //.nrCols(nrCols)
-        
 
         //call chart
         const chartG = d3.select(chartsRef.current).selectAll("g.chart").data(processedChartsData);
@@ -117,9 +101,6 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
 
   return (
     <div className="quadrants-chart-root">
-      {/**<Typography variant="h6" className="quadrants-chart-title">
-          Quadrant Bar Chart
-        </Typography>*/}
       <div className="quadrants-chart-header">
         <div>
           <div className="quadrants-chart-title">{data.title || ""}</div>

@@ -9,17 +9,17 @@ const categories = [
 
 const measures = [
   //sharpness
-  { postInjuryValue:13.2, key:"s1", label:"S1", name:"", categoryKey:"sharpness" },
+  { postInjuryValue:27.2, key:"s1", label:"Max Speed", name:"", categoryKey:"sharpness" },
   { postInjuryValue:13.2, key:"s2", label:"S2", name:"", categoryKey:"sharpness" },
   { postInjuryValue:13.2, key:"s3", label:"S3", name:"", categoryKey:"sharpness" },
   { postInjuryValue:13.2, key:"s4", label:"S4", name:"", categoryKey:"sharpness" },
   { postInjuryValue:13.2, key:"s5", label:"S5", name:"", categoryKey:"sharpness" },
   //cardio
-  { postInjuryValue:13.2, key:"c1", label:"C1", name:"", categoryKey:"cardio" },
-  { postInjuryValue:13.2, key:"c2", label:"C2", name:"", categoryKey:"cardio" },
-  { postInjuryValue:13.2, key:"c3", label:"C3", name:"", categoryKey:"cardio" },
-  { postInjuryValue:13.2, key:"c4", label:"C4", name:"", categoryKey:"cardio" },
-  { postInjuryValue:13.2, key:"c5", label:"C5", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c1", label:"High Speed Runs", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c2", label:"Med Speed Runs", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c3", label:"Total Distance (km)", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c4", label:"Nr of Actions", name:"", categoryKey:"cardio" },
+  { postInjuryValue:13.2, key:"c5", label:"HR Recovery (sec)", name:"", categoryKey:"cardio" },
   //postural
   { postInjuryValue:13.2, key:"p1", label:"P1", name:"", categoryKey:"postural" },
   { postInjuryValue:13.2, key:"p2", label:"P2", name:"", categoryKey:"postural" },
@@ -36,7 +36,7 @@ const measures = [
 
 const valuesForSessionsPostInjury = {
   //cat 1 - sharpness
-  s1:[4, 4.2, 4.3, 4.8, 5.1, 5, 4.8, 4.7, 5, 5.2, 6, 6.5, 6, 6.7, 7, 7.1, 7.2, 8, 7.6, 7.5],
+  s1:[24, 24.2, 24.3, 24.8, 25.1, 25, 24.8, 24.7, 25, 25.2, 26, 26.5, 26, 26.7, 27, 27.1, 27.2, 28, 27.6, 27.5],
   s2:[4.6, 5.2, 6, 6.5, 6,],
   s3:[9, 9.5, 9.8, 9.9],
   s4:[11, 11, 11.5, 10, 11.9],

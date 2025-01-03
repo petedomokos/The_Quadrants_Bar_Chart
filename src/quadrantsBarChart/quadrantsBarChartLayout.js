@@ -22,7 +22,6 @@ export const quadrantsBarChartLayout = (data, settings={}) => {
                     value:convertToPC(0, targetValues.find(t => t.key === v.key).value)(v.value)
                 }));
 
-            console.log("unorderedValues", unorderedValues)
             return {
                 key:`quad-${j+1}`,
                 i:j,

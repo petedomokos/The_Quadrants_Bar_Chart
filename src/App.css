@@ -57,6 +57,7 @@
   height:130px;
   display:flex;
   justify-content: space-between;
+  background:aqua;
 }
 
 .quadrants-chart-container {

@@ -391,6 +391,7 @@ export default function quadrantsBarChart() {
         height = values.height || height;
         //@todo - add margin in, but this be on outside of each quadrant
         margin = values.margin ? { ...margin, ...values.margin } : margin;
+
         return chart;
     };
     chart.selectedQuadrantIndex = function (value) {
