@@ -12,7 +12,7 @@ Clone and run the code to see an example of a sports rehabilitation tracker for 
 
 ## About this project
 
-This is an ongoing project.
+This is an ongoing project. Responsiveness to different screen sizes is not fully functional, and code is not productionised.
 
 More functionality coming soon, including:
 
