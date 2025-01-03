@@ -8,11 +8,11 @@ Then the goal is to fill each bar fully, making a perfect square!
 
 It is particularly good for data that naturally falls into 2 or 4 categories, because each half or quadrant represents a category.
 
-Clone and run the code to see an example of a sports rehabilitation tracker for injured players.
-
 ## About this project
 
 This is an ongoing project. Responsiveness to different screen sizes is not fully functional, and code is not productionised.
+
+Clone and run the code to see an example of a sports rehabilitation tracker for injured players.
 
 ## How the chart works
 
