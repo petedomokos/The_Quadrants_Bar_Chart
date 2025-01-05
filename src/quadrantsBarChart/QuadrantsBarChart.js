@@ -36,7 +36,7 @@ import { isNumber } from '../helpers/dataHelpers';
     //dimns for overall container
     const containerWidth = container.getBoundingClientRect().width;
     const containerHeight = container.getBoundingClientRect().height;
-    //console.log("w h", containerWidth, containerHeight)
+    console.log("w h", containerWidth, containerHeight)
     const contentsWidth = containerWidth - (containerMargin.left || 0) - (containerMargin.right || 0);
     const contentsHeight = containerHeight - (containerMargin.top || 0) - (containerMargin.bottom || 0);
 
@@ -54,11 +54,13 @@ import { isNumber } from '../helpers/dataHelpers';
   }
 
 const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
-  console.log("Data", data)
+  //console.log("Data", data)
   //local state
   const [chart, setChart] = useState(null);
   const [sizes, setSizes] = useState(null);
   const [selectedQuadrantIndex, setSelectedQuadrantIndex] = useState(null);
+  const [headerExtended, setHeaderExtended] = useState(false);
+  console.log("ext?", headerExtended)
 
   const containerMargin = { left:20, right:20, top:20, bottom:20 };
   const chartMargin = (width, height) => ({ left:width * 0.1, right:width * 0.1, top:height * 0.1, bottom:height * 0.1 });
@@ -68,6 +70,8 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
   const classes = {
     root:"", title:"", container:""
   }*/
+
+  const toggleHeaderExtended = () => setHeaderExtended(prevState => !prevState);
 
   const chartsRef = useRef(null);
   //render chart
@@ -101,17 +105,28 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
 
   return (
     <div className="quadrants-chart-root">
-      <div className="quadrants-chart-header">
-        <div>
-          <div className="quadrants-chart-title">{data.title || ""}</div>
-          <div className="quadrants-chart-desc">
+      <div className={`quadrants-chart-header ${headerExtended ? "extended" : ""}`}>
+        <div className="title-and-description">
+          <div className="quadrants-chart-title">
+            {data.title?.map((line, i) => 
+              <div className="title-line" key={`title-line-${i}`}>{line}</div> )
+            }
+          </div>
+          <a 
+            className={`desc-btn ${headerExtended ? "to-hide" : "to-show"}`}
+            onClick={toggleHeaderExtended}
+          >
+            {`${headerExtended ? "Hide" : "Show"} Description`}
+          </a>
+          <div className={`quadrants-chart-desc ${headerExtended ? "extended" : ""}`}>
             {data.desc?.map((line, i) => 
-              <div key={`line-${i}`}>{line}</div> )}
+              <div className="desc-line" key={`desc-line-${i}`}>{line}</div> )
+            }
           </div>
         </div>
         <div>
           <div className="player-name">
-            <div className="label">player:</div>
+            <div className="label">player</div>
             <div className="name">{data.playerName}</div>
           </div>
         </div>
