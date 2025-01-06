@@ -1,70 +1,43 @@
-# Getting Started with Create React App
+ # The Quadrants Bar Chart
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+Take 4 bar charts, turn two of them upside down and stick them together. What do you get? The Quadrants Bar Chart.
+This a fantastic way to make progress towards an ideal state - simply normalise all bar values so they are out of the same amount (eg 100%).
+Then the goal is to fill each bar fully, making a perfect square!
 
-In the project directory, you can run:
+It is particularly good for data that naturally falls into 2 or 4 categories, because each half or quadrant represents a category.
 
-### `npm start`
+## About this project
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This is an ongoing project. Responsiveness to different screen sizes is not fully functional, and code is not productionised.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Clone and run the code to see an example of a sports rehabilitation tracker for injured players.
 
-### `npm test`
+## How the chart works
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+#### Bar ordering
 
-### `npm run build`
+The highest bars, representing the measures that going the best, are always towards the centre of the overall square. This make it easier to see the shapre of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+In our sports rehabilitation example, whereas an executive (or manager) may want to just know the overall shape for all injured players, a coach or physio would be more interested in the specific bars.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+#### Drilling Down
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+User can select a quadrant, and it will enlarge. It is not yet possible to see info on bars or to drill down into bars.
 
-### `npm run eject`
+## More functionality coming soon
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+   - Hover or tap the bars for an info popup/tooltip
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   - Click/tap a session for more detail
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+   - Run an animation to see progress unfold alongside other info or videos (eg as part of a larger dashboard)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+   - Remove auto-ordering of bars to make tracking particular bars easier ( but tracking the overall shape becomes harder)
+     
+   - Colour variations for each bar in each quadrant to aid individual tracking without having to lose the auto-ordering
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
