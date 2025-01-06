@@ -26,12 +26,14 @@
   min-height: calc(100vh - 50px);
   padding:0 2.5% 1.5%;
   background-color: #282c34;
+  @media only screen and (max-width: 575px) {
+    min-height: calc(100vh - 30px);
+  }
 }
 
 .quadrants-chart-root {
-  width:95%;
-  height:80vh;
-  padding:1.5%;
+  width:100%;
+  height:90vh;
   background:#F5F5F5;
 }
 
