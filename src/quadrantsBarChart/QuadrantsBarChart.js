@@ -23,35 +23,46 @@ import { isNumber } from '../helpers/dataHelpers';
   },
 }))*/
 
-  const calcNrCols = (containerWidth/*, minChartWidth = 80*/) => {
-    if(containerWidth >= 800){ return 8; }
-    if(containerWidth >= 600) { return 6; }
-    if(containerWidth >= 400) { return 4; }
-    if(containerWidth >= 300) { return 2; }
-    return 1;  
-  }
-  //@TODO - consider using viewbox instead fro timeSeries as AR should be constant, but not for beeSwarms
-  const calculateChartSizesAndGridLayout = (container, nrItems, containerMargin={}, chartMargin={}) => {
-    //console.log("nrRows cols", nrRows, nrCols)
-    //dimns for overall container
-    const containerWidth = container.getBoundingClientRect().width;
-    const containerHeight = container.getBoundingClientRect().height;
-    console.log("w h", containerWidth, containerHeight)
-    const contentsWidth = containerWidth - (containerMargin.left || 0) - (containerMargin.right || 0);
-    const contentsHeight = containerHeight - (containerMargin.top || 0) - (containerMargin.bottom || 0);
+//const calcOneDimnFromOther = (knownDimn, nrItems) => nrItems % knownDimn === 0 ? nrItems/knownDimn : Math.floor(nrItems/knownDimn) + 1;
 
-    //nrRows and cols
-    const nrCols = calcNrCols(containerWidth);
-    const nrRows = nrItems % nrCols === 0 ? nrItems/nrCols : Math.floor(nrItems/nrCols) + 1;
+const calcNrColsAndRows = (containerWidth, containerHeight, nrItems) => {
+  const aspectRatio = containerHeight / containerWidth;
+  console.log("ar", aspectRatio)
+  if(aspectRatio <= 0.1){ return { nrRows: 1, nrCols : 24 } }
+  if(aspectRatio <= 0.3){ return { nrRows: 2, nrCols : 12 } }
+  if(aspectRatio <= 0.65){ return { nrRows: 3, nrCols : 8 } }
+  if(aspectRatio <= 1){ return { nrRows: 4, nrCols : 6 } }
+  if(aspectRatio <= 1.35){ return { nrRows: 6, nrCols : 4 } }
+  if(aspectRatio <= 2){ return { nrRows: 8, nrCols : 3 } }
+  if(aspectRatio <= 4){ return { nrRows: 12, nrCols : 2 } }
+  if(aspectRatio > 4){ return { nrRows: 24, nrCols : 1 } }
+}
 
-    //dimns for single chart
-    const width = contentsWidth / nrCols;
-    const height = contentsHeight / nrRows
-    const marginValues = typeof chartMargin === "function" ? chartMargin(width, height) : chartMargin;
-    const margin = { left:0, right:0, top:0, bottom:0, ...marginValues }
 
-    return { width, height, margin, nrRows, nrCols, nrCharts:nrItems }
-  }
+//@TODO - consider using viewbox instead fro timeSeries as aspectRatio should be constant, but not for beeSwarms
+const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={}, _chartMargin={}) => {
+  //console.log("nrRows cols", nrRows, nrCols)
+  //dimns for overall container
+  const containerWidth = container.getBoundingClientRect().width;
+  const containerHeight = container.getBoundingClientRect().height;
+  console.log("contw conth", containerWidth, containerHeight)
+  const defaultMargin = { left:0, right:0, top:0, bottom:0 };
+  const containerMarginValues = typeof _containerMargin === "function" ? _containerMargin(containerWidth, containerHeight) : _containerMargin;
+  const containerMargin = { ...defaultMargin, ...containerMarginValues };
+  const contentsWidth = containerWidth - containerMargin.left - containerMargin.right;
+  const contentsHeight = containerHeight - containerMargin.top - containerMargin.bottom;
+
+  //nrRows and cols
+  const { nrCols, nrRows } = calcNrColsAndRows(contentsWidth, contentsHeight, nrItems);
+  console.log("rows cols", nrRows, nrCols)
+  //dimns for single chart
+  const width = contentsWidth / nrCols;
+  const height = contentsHeight / nrRows;
+  const marginValues = typeof _chartMargin === "function" ? _chartMargin(width, height) : _chartMargin;
+  const margin = { ...defaultMargin, ...marginValues }
+
+  return { containerWidth, containerHeight, containerMargin, width, height, margin, nrRows, nrCols, nrCharts:nrItems }
+}
 
 const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
   //console.log("Data", data)
@@ -60,9 +71,8 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
   const [sizes, setSizes] = useState(null);
   const [selectedQuadrantIndex, setSelectedQuadrantIndex] = useState(null);
   const [headerExtended, setHeaderExtended] = useState(false);
-  console.log("ext?", headerExtended)
 
-  const containerMargin = { left:20, right:20, top:20, bottom:20 };
+  const containerMargin = { left:10, right:10, top:10, bottom:10 };
   const chartMargin = (width, height) => ({ left:width * 0.1, right:width * 0.1, top:height * 0.1, bottom:height * 0.1 });
   /*const titleHeight = 50;
   const styleProps = { containerMargin, titleHeight };
@@ -73,13 +83,14 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
 
   const toggleHeaderExtended = () => setHeaderExtended(prevState => !prevState);
 
-  const chartsRef = useRef(null);
+  const containerRef = useRef(null);
   //render chart
+  console.log("sizes", sizes)
   useEffect(() =>{
       if(!chart){
         //init
         setChart(() => quadrantsBarChart())
-        const chartSizes = calculateChartSizesAndGridLayout(chartsRef.current, data.chartsData.length, containerMargin, chartMargin);
+        const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.chartsData.length, containerMargin, chartMargin);
         //@todo next - clacsizes func must accomodate more than 1 xhart into its space
         setSizes(chartSizes)
       }else{
@@ -93,7 +104,10 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
             .setSelectedQuadrantIndex(setSelectedQuadrantIndex)
 
         //call chart
-        const chartG = d3.select(chartsRef.current).selectAll("g.chart").data(processedChartsData);
+        const visContentsG = d3.select(containerRef.current).select("svg").selectAll("g.vis-contents")
+          .attr("transform", `translate(${sizes.containerMargin.left}, ${sizes.containerMargin.top})`);
+
+        const chartG = visContentsG.selectAll("g.chart").data(processedChartsData);
         chartG.enter()
           .append("g")
             .attr("class", "chart")
@@ -101,7 +115,16 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
             .attr("transform", (d,i) => `translate(${d.colNr * sizes.width},${d.rowNr * sizes.height})`)
             .call(chart)
       }
-  })
+  }, [chart, sizes, data.chartsData.length, selectedQuadrantIndex, headerExtended])
+
+  useEffect(() => {
+    let resizeObserver = new ResizeObserver(() => { 
+      const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.chartsData.length, containerMargin, chartMargin);
+      setSizes(chartSizes);
+    }); 
+    
+    resizeObserver.observe(containerRef.current);
+  }, [data.chartsData.length]);
 
   return (
     <div className="viz-root">
@@ -131,8 +154,11 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
           </div>
         </div>
       </div>
-      <svg ref={chartsRef} className="viz-container">
-      </svg>
+      <div className={`viz-container ${headerExtended ? "with-extended-header" : ""}`} ref={containerRef}>
+        <svg width="100%" height="100%">
+          <g className="vis-contents"></g>
+        </svg>
+      </div>
     </div>
   )
 }

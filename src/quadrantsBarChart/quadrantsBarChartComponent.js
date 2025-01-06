@@ -13,12 +13,12 @@ export default function quadrantsBarChart() {
     let contentsWidth;
     let contentsHeight;
 
-    let chartTitleHeight = 30;
+    let chartTitleHeight;
 
     let axesStrokeWidth;
     let quadrantWidth;
     let quadrantHeight;
-    let quadrantTitleHeight = 20;
+    let quadrantTitleHeight;
 
     let barsAreaWidth;
     let barsAreaHeight;
@@ -51,16 +51,39 @@ export default function quadrantsBarChart() {
         const maxContentsHeight = height - margin.top - margin.bottom;
         //set chartTitleheight to reduce down to a min
         chartTitleHeight = d3.max([16, maxContentsHeight * 0.1]);
+        quadrantTitleHeight = 20;
+        withQuadrantTitles = true;
+        withChartTitles = true;
         //console.log("maxCW, maxCH chartTitH", maxContentsWidth, maxContentsHeight, chartTitleHeight)
         if(maxContentsWidth < 100 || maxContentsHeight < 120){
             //remove quad labels
             withQuadrantTitles = false;
             quadrantTitleHeight = 0;
-            if(maxContentsWidth < 40 || maxContentsHeight < 70){
-                withChartTitles = false;
-                chartTitleHeight = 0;
-            }
         }
+        if(maxContentsWidth < 40 || maxContentsHeight < 70){
+            chartTitleHeight = 15;
+        }
+        if(maxContentsWidth < 25 || maxContentsHeight < 40){
+            withChartTitles = false;
+            chartTitleHeight = 0;
+        }
+
+        /*
+        new - this one may be better
+        if((maxContentsWidth < 100 && maxContentsHeight < 120) || maxContentsWidth < 40 || maxContentsHeight < 60){
+            //remove quad labels
+            withQuadrantTitles = false;
+            quadrantTitleHeight = 0;
+        }
+        if((maxContentsWidth < 40 && maxContentsHeight < 70) || maxContentsWidth < 30 || maxContentsHeight < 50){
+            chartTitleHeight = 15;
+        }
+        if((maxContentsWidth < 25 && maxContentsHeight < 40) || maxContentsWidth < 20 || maxContentsHeight < 35){
+            console.log("mw mh", maxContentsWidth, maxContentsHeight)
+            withChartTitles = false;
+            chartTitleHeight = 0;
+        }
+        */
 
         //contentsheight includes space for quad titles, whereas contenstWidth doesnt
         contentsWidth = d3.min([maxContentsWidth, maxContentsHeight - chartTitleHeight - 2 * quadrantTitleHeight]);
@@ -83,7 +106,6 @@ export default function quadrantsBarChart() {
         styles.chart.title.fontSize = chartTitleHeight * 0.5;
         styles.quadrant.title.fontSize = quadrantHeight * 0.11;
         styles.bar.fontSize = quadrantHeight * 0.09;;//d3.min([]) barsAreaHeight
-        //console.log("title fontsize.........", styles.quadrant.title.fontSize)
         if(styles.quadrant.title.fontSize < 6){ withQuadrantTitles = false; }
     };
 
@@ -109,7 +131,7 @@ export default function quadrantsBarChart() {
             //or just remove the init-update functions altogether
             //bg
             container.append("rect").attr("class", "chart-bg")
-                .attr("stroke","none")// "grey")
+                .attr("stroke", "none")// "grey")
                 .attr("fill", "transparent");
 
             const contentsG = container.append("g").attr("class", "contents");
@@ -232,6 +254,7 @@ export default function quadrantsBarChart() {
                     .merge(quadrantContainerG)
                     .attr("transform", (d,i) => `translate(${(i === 0 || i === 2) ? 0 : quadrantWidth + axesStrokeWidth}, ${(i === 0 || i === 1) ? 0 : quadrantHeight + axesStrokeWidth})`)
                     .on("click", function(e,d){
+                        console.log("click quad")
                         e.stopPropagation();
                         if(selectedQuadrantIndex !== d.i){
                             setSelectedQuadrantIndex(d.i)
@@ -303,7 +326,7 @@ export default function quadrantsBarChart() {
                         const barLabelHeight = 15;
 
                         const barsG = barsAreaG.select("g.bars");
-                        const barG = barsG.selectAll("g.bar").data(quadD.values);
+                        const barG = barsG.selectAll("g.bar").data(quadD.values, d => d.key);
                         barG.enter()
                             .append("g")
                                 .attr("class", "bar")
@@ -346,8 +369,8 @@ export default function quadrantsBarChart() {
                                         .attr("transform", `translate(${j * (barWidth + gapBetweenBars)},${i < 2 ? barsAreaHeight - barHeight : 0})`);
 
                                     barG.select("rect.bar")
-                                        .transition()
-                                        .duration(500)
+                                        //.transition()
+                                        //.duration(500)
                                             .attr("width", barWidth)
                                             .attr("height", barHeight)
                                             .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
