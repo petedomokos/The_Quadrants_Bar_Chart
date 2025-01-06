@@ -104,10 +104,10 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
   })
 
   return (
-    <div className="quadrants-chart-root">
-      <div className={`quadrants-chart-header ${headerExtended ? "extended" : ""}`}>
+    <div className="viz-root">
+      <div className={`viz-header ${headerExtended ? "extended" : ""}`}>
         <div className="title-and-description">
-          <div className="quadrants-chart-title">
+          <div className="viz-title">
             {data.title?.map((line, i) => 
               <div className="title-line" key={`title-line-${i}`}>{line}</div> )
             }
@@ -118,7 +118,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
           >
             {`${headerExtended ? "Hide" : "Show"} Description`}
           </a>
-          <div className={`quadrants-chart-desc ${headerExtended ? "extended" : ""}`}>
+          <div className={`viz-desc ${headerExtended ? "extended" : ""}`}>
             {data.desc?.map((line, i) => 
               <div className="desc-line" key={`desc-line-${i}`}>{line}</div> )
             }
@@ -131,7 +131,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
           </div>
         </div>
       </div>
-      <svg ref={chartsRef} className="quadrants-chart-container">
+      <svg ref={chartsRef} className="viz-container">
       </svg>
     </div>
   )

@@ -31,13 +31,13 @@
   }
 }
 
-.quadrants-chart-root {
+.viz-root {
   width:100%;
   height:90vh;
   background:#F5F5F5;
 }
 
-.quadrants-chart-header {
+.viz-header {
   width:100%;
   height:auto;
   display:flex;
@@ -59,14 +59,14 @@
   overflow:hidden;
 }
 
-.quadrants-chart-header.extended {
+.viz-header.extended {
   height:175px;
   @media only screen and (max-width: 575px) {
     height:210px;
   }
 }
 
-.quadrants-chart-container {
+.viz-container {
   width:100%;
   height:calc(100% - 130px);
 }
@@ -83,7 +83,7 @@
   }
 }
 
-.quadrants-chart-title {
+.viz-title {
   width:calc(100% - 20px);
   padding:10px;
   font-size:1.3rem;
@@ -99,7 +99,7 @@
   }
 }
 
-.quadrants-chart-title div {
+.viz-title div {
   margin-right: 4px;
   display:flex;
   text-align:left;
@@ -131,7 +131,7 @@
   color:red;
 }
 
-.quadrants-chart-desc {
+.viz-desc {
   height:auto;
   padding:5px 0px;
   font-size:0.8rem;
@@ -150,12 +150,12 @@
   }
 }
 
-.quadrants-chart-desc.extended {
+.viz-desc.extended {
   height:100px;
   padding:5px 0;
 }
 
-.quadrants-chart-desc div{
+.viz-desc div{
   padding:7.5px 10px;
   text-align:left;
   @media only screen and (max-width: 768px) {
