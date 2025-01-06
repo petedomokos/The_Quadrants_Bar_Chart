@@ -13,28 +13,33 @@
   font-size: calc(10px + 2vmin);
   color: white;
   @media only screen and (max-width: 768px) {
-    height:40px;
+    height:50px;
     font-size: calc(5px + 2vmin);
+    display:none;
   }
   @media only screen and (max-width: 575px) {
-    height:30px;
+    height:40px;
     font-size: calc(5px + 1vmin);
   }
 }
 
 .content {
   min-height: calc(100vh - 50px);
-  padding:0 2.5% 1.5%;
+  padding:0 2.5%;
   background-color: #282c34;
-  @media only screen and (max-width: 575px) {
-    min-height: calc(100vh - 30px);
+  @media only screen and (max-width: 768px) {
+    padding:0;
+    min-height: calc(100vh);
   }
 }
 
 .viz-root {
   width:100%;
-  height:90vh;
+  height:calc(100vh - 80px - 40px);
   background:#F5F5F5;
+  @media only screen and (max-width: 768px) {
+    height:calc(100vh);
+  }
 }
 
 .viz-header {
@@ -114,11 +119,11 @@
   min-height: 20px;
   padding:0 10px;
   font-size:0.7rem;
-  cursor: pointer;
   display:flex;
   align-items: center;
   transition: color 500ms;
   text-decoration: underline;
+  cursor: pointer;
   @media only screen and (min-width: 769px) {
     display:none;
   }

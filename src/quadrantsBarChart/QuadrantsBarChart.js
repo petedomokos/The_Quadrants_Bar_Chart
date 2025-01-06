@@ -71,7 +71,9 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
     root:"", title:"", container:""
   }*/
 
-  const toggleHeaderExtended = () => setHeaderExtended(prevState => !prevState);
+  const toggleHeaderExtended = e => {
+    setHeaderExtended(prevState => !prevState);
+  }
 
   const chartsRef = useRef(null);
   //render chart
