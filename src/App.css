@@ -74,6 +74,23 @@
 .viz-container {
   width:100%;
   height:calc(100% - 130px);
+  @media only screen and (max-width: 990px) {
+    height:calc(100% - 180px);
+  }
+  @media only screen and (max-width: 768px) {
+    height:calc(100% - 70px);
+  }
+  @media only screen and (max-width: 575px) {
+    height:calc(100% - 100px);
+  }
+}
+
+.viz-container.with-extended-header {
+  width:100%;
+  height:calc(100% - 175px);
+  @media only screen and (max-width: 575px) {
+    height:calc(100% - 210px);;
+  }
 }
 
 .title-and-description{
