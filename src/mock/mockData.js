@@ -9,56 +9,84 @@ const categories = [
 
 const measures = [
   //sharpness
-  { postInjuryValue:27.2, key:"s1", label:"Max Speed", name:"", categoryKey:"sharpness" },
-  { postInjuryValue:13.2, key:"s2", label:"S2", name:"", categoryKey:"sharpness" },
-  { postInjuryValue:13.2, key:"s3", label:"S3", name:"", categoryKey:"sharpness" },
-  { postInjuryValue:13.2, key:"s4", label:"S4", name:"", categoryKey:"sharpness" },
-  { postInjuryValue:13.2, key:"s5", label:"S5", name:"", categoryKey:"sharpness" },
+  { preInjuryValue:27.2, key:"s1", label:"Max Speed", name:"", categoryKey:"sharpness", range:[20, 35] },
+  { preInjuryValue:0.25, key:"s2", label:"Turn Rate - Decel (sec)", name:"", categoryKey:"sharpness", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:0.16, key:"s3", label:"Turns Rate - Accel (sec)", name:"", categoryKey:"sharpness", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:19, key:"s4", label:"Short Sprints (nr)", name:"", categoryKey:"sharpness", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:10, key:"s5", label:"Self-Report (/10)", name:"", categoryKey:"sharpness",range:[20, 35], optimalValue:"max" },
   //cardio
-  { postInjuryValue:13.2, key:"c1", label:"High Speed Runs", name:"", categoryKey:"cardio" },
-  { postInjuryValue:13.2, key:"c2", label:"Med Speed Runs", name:"", categoryKey:"cardio" },
-  { postInjuryValue:13.2, key:"c3", label:"Total Distance (km)", name:"", categoryKey:"cardio" },
-  { postInjuryValue:13.2, key:"c4", label:"Nr of Actions", name:"", categoryKey:"cardio" },
-  { postInjuryValue:13.2, key:"c5", label:"HR Recovery (sec)", name:"", categoryKey:"cardio" },
+  { preInjuryValue:8, key:"c1", label:"High Speed Runs (nr)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:15, key:"c2", label:"Med Speed Runs (nr)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:9.8, key:"c3", label:"Total Distance (km)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:25, key:"c4", label:"Ball Actions (nr)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:10, key:"c5", label:"Self-Report (/10)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
   //postural
-  { postInjuryValue:13.2, key:"p1", label:"P1", name:"", categoryKey:"postural" },
-  { postInjuryValue:13.2, key:"p2", label:"P2", name:"", categoryKey:"postural" },
-  { postInjuryValue:13.2, key:"p3", label:"P3", name:"", categoryKey:"postural" },
-  { postInjuryValue:13.2, key:"p4", label:"P4", name:"", categoryKey:"postural" },
-  { postInjuryValue:13.2, key:"p5", label:"P5", name:"", categoryKey:"postural" },
+  { preInjuryValue:0, key:"p1", label:"Knee Flex (deg)", name:"", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:180, key:"p2", label:"Knee Ext (deg)", name:"", categoryKey:"postural", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:120, key:"p3", label:"Turn(deg)", name:"", categoryKey:"postural", range:[100, 140], optimalValue:120 }, //optimalValue should be 'other' ie a middle number
+  { preInjuryValue:10, key:"p4", label:"Squat Position (/10)", name:"", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:10, key:"p5", label:"Self-Report (/10)", name:"", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
   //technical
-  { postInjuryValue:13.2, key:"t1", label:"T1", name:"", categoryKey:"technical" },
-  { postInjuryValue:13.2, key:"t2", label:"T2", name:"", categoryKey:"technical" },
-  { postInjuryValue:13.2, key:"t3", label:"T3", name:"", categoryKey:"technical" },
-  { postInjuryValue:13.2, key:"t4", label:"T4", name:"", categoryKey:"technical" },
-  { postInjuryValue:13.2, key:"t5", label:"T5", name:"", categoryKey:"technical" },
+  { preInjuryValue:92, key:"t1", label:"T1", name:"Ball Control (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:64, key:"t2", label:"T2", name:"Attacking Pass Success (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:77, key:"t3", label:"T3", name:"Forward Pass Success (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:74, key:"t4", label:"T4", name:"Dribble Success (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min"},
+  { preInjuryValue:79, key:"t5", label:"T5", name:"Shots On Target (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
 ]
+/*
+The Data story
+Sharpness - the 2 turn-rate ones lag and improve slowly, the other 3 get better, but only to about 80%
+cardio - recovers steadily across all kpis up to 100%, so its a flat shape, gradually increasing
+Postural - kne ext recovers quickly, but knee flex and squats lag behind, and plateux
+...Turn-deg is also making no progress and weak. Self-report is moderate, so between the good and bad
+Tech- all aspects lag behind the other 3 quds significantly
+*/
 
 const valuesForSessionsPostInjury = {
   //cat 1 - sharpness
-  s1:[24, 24.2, 24.3, 24.8, 25.1, 25, 24.8, 24.7, 25, 25.2, 26, 26.5, 26, 26.7, 27, 27.1, 27.2, 28, 27.6, 27.5],
-  s2:[4.6, 5.2, 6, 6.5, 6,],
-  s3:[9, 9.5, 9.8, 9.9],
-  s4:[11, 11, 11.5, 10, 11.9],
-  s5:[10, 10.5, 10.6, 10.7, 11],
+  //max 27.2
+  s1:[24, 24.2, 24.3, 24.8, 25.1, 25, 24.8, 24.7, 25, 25.2, 25.3, 25.3, 25.4, 25.3, 25.6, 25.7, 25.6, 25.4, 25.7, 25.6, 25.6, 25.7, 25.8, 25.8],
+  //turn decel 0.25
+  s2:[1.2, 1.23, 1.21, 1.1, 1.01, 0.96, 0.95, 0.91, 0.90, 0.87, 0.86, 0.81, 0.81, 0.76, 0.77, 0.75, 0.73, 0.72, 0.69, 0.65, 0.63, 0.61, 0.58, 0.56],
+  //turn accel 0.16
+  s3:[1.1, 1.05, 0.95, 0.91, 0.90, 0.87, 0.86, 0.81, 0.81, 0.76, 0.77, 0.75, 0.73, 0.72, 0.67, 0.65, 0.64, 0.57, 0.54, 0.49, 0.47, 0.43, 0.41, 0.38],
+  //nr short sprints 19
+  s4:[0, 0, 0, 2, 3, 3, 4, 5, 5, 6, 7, 8, 8, 9, 10, 11, 13, 14, 14, 15, 15, 16, 16, 16],
+  //self-report 10
+  s5:[1, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 7, 7, 8, 8, 8, 9, 8, 8],
   //cat 2 - cardio
-  c1:[9, 9.4, 9.7, 10.4],
-  c2:[7, 7.9, 7.8, 8.3],
-  c3:[9, 9.3, 10.2, 10.8],
-  c4:[8, 8.3, 8.9, 10],
-  c5:[10, 10.7, 10.9, 11.5],
+  //HSR 8 
+  c1:[1, 2, 2, 2, 3, 3, 3, 3, 4, 5, 7, 7, 7, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+  //MSR 15
+  c2:[3, 3, 3, 4, 4, 5, 6, 6, 7, 8, 8, 10, 10, 9, 9, 10, 11, 13, 13, 14, 14, 15, 15, 15],
+  //Dist 9.8
+  c3:[6, 6.5, 6.7, 6.9, 6.8, 4.5, 6.9, 7.3, 7.4, 7.6, 7.5, 7.6, 8, 8.2, 8,8.5, 8.7, 8.4, 9.4, 9.1, 9.6, 9.8, 9.5, 9.8, 9.7],
+  //Ball Actions 25
+  c4:[ 5, 6, 6, 7, 9, 8, 8, 10, 12, 11, 10, 11, 11, 12, 13, 7, 10, 11, 14, 12, 9, 13, 14, 12],
+  //self 10
+  c5:[1, 1, 1, 2, 4, 3, 6, 6, 6, 7, 6, 7, 8, 8, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10],
   //cat 3 - postural
-  p1:[11, 11.7, 11.9, 12.1],
-  p2:[11, 11, 11.6, 12.1],
-  p3:[12, 12.5, 12.8, 12.9],
-  p4:[13, 12.9, 13, 13.9],
-  p5:[10.7, 11.6, 11.9, 13],
+  //Knee flex 0
+  p1:[40, 38, 36, 36, 32, 30, 33, 29, 27, 25, 24, 21, 18, 18, 17, 16, 16, 16, 15, 15, 14, 13, 13, 12],
+  //knee ext 180
+  p2:[150, 152, 155, 159, 158, 157, 159, 163, 164, 165, 167, 172, 174, 174, 175, 176, 176, 176, 177, 177, 177, 178, 180, 180],
+  //turn deg 120
+  p3:[137, 136, 133, 133, 132, 129, 128, 125, 123, 121, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120],
+  //squat pos 10
+  p4:[ 1, 1, 1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 7, 7],
+  //self 10
+  p5:[1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9],
   //cat 4 - technical
-  t1:[10, 10.8, 13.7, 12.5],
-  t2:[11, 11.7, 11.7, 11.3],
-  t3:[11.5, 11.9, 12.7, 13.8],
-  t4:[10.3, 10.9, 10.8, 11.4],
-  t5:[13, 13.6, 12.7, 13.7],
+  //control 92
+  t1:[62, 61, 64, 64, 66, 67, 65, 67, 69, 71, 73, 70, 67, 72, 69, 71, 70, 71, 73, 75, 73, 71, 75, 74],
+  //pass succ 84
+  t2:[52, 54, 51, 55, 58, 51, 57, 59, 58, 61, 65, 63, 60, 57, 62, 66, 63, 65, 63, 61, 63, 65, 67, 65],
+  //forward pass succ 77
+  t3:[47, 50, 50, 52, 56, 46, 52, 57, 58, 60, 60, 58, 60, 57, 62, 61, 60, 59, 58, 61, 63, 60, 61, 60],
+  //drib succ 74
+  t4:[43, 51, 51, 49, 56, 56, 51, 53, 53, 57, 60, 55, 58, 52, 60, 55, 60, 54, 54, 58, 60, 58, 65, 58],
+  //shots on targ 79
+  t5:[44, 53, 51, 48, 52, 47, 54, 58, 52, 62, 54, 58, 62, 57, 58, 57, 61, 55, 54, 58, 60, 59, 60, 57],
 }
 
 export const getRehabData = (nrSessions=20) => {
@@ -70,7 +98,7 @@ export const getRehabData = (nrSessions=20) => {
         "Click on a chart to enlarge/reduce a category."
     ],
     playerName:"James Stevens",
-    targetValues:measures.map(m => ({ key:m.key, value:m.postInjuryValue })),
+    measures,
     chartsData:range(1, nrSessions+1).map(n => createSessionData(n))
   }
 }
@@ -91,7 +119,7 @@ function createQuadrantData(sessionNr, quadrantNr){
     values:measures
       .filter(m => m.categoryKey === quadrantCategory.key)
       .map(m => ({
-        ...m,
+        measureKey:m.key,
         value:valuesForSessionsPostInjury[m.key] ? valuesForSessionsPostInjury[m.key][sessionNr-1] : null
       }))
   }

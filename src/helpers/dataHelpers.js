@@ -35,6 +35,25 @@ export const convertToPC = (startValue, targetValue) => (value, options={}) => {
     return fullyBounded;
 }
 
+
+//@todo - check if this line would work const { dps=0, defaultValue, range=[0, targetValue], lowerBound, upperBound } = options;
+//is targetValue available when this is evaluated?
+export const percentageScoreConverter = (targetValue, options={}) => (value) => {
+    const { dps=0, defaultValue, customRange, allowGreaterThan100=false, allowLessThanZero=false } = options;
+    if(!isNumber(targetValue) || !isNumber(value)){
+        //must handle default = 0 separately, but also allow user to choose any default eg null, undefined, "N/A" etc
+        return isNumber(defaultValue) || defaultValue ? defaultValue : null;
+    }
+    const range = customRange || [0, targetValue];
+    const rangeSize = Math.abs(range[1] - range[0]);
+    const direction = range[1] - range[0] >= 0 ? "increasing" : "decreasing";
+    const quantityOfRangeAchieved = direction === "increasing" ? value - range[0] : range[1] - value;
+    const pc = ((quantityOfRangeAchieved/rangeSize) * 100).toFixed(dps);
+    const lowerBound = allowLessThanZero && pc < 0 ? pc : 0;
+    const upperBound = allowGreaterThan100 && pc > 100 ? pc : 100;
+    return d3.min([upperBound, d3.max([lowerBound, pc])])
+}
+
 export const getValueForStat = (statKey, accuracy, showTrailingZeros=true) => datapoint => {
     const valueStr = datapoint?.values?.find(v => v.statKey === statKey)?.value; 
     return round(Number(valueStr), accuracy, showTrailingZeros)

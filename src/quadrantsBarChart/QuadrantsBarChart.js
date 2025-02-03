@@ -27,7 +27,6 @@ import { isNumber } from '../helpers/dataHelpers';
 
 const calcNrColsAndRows = (containerWidth, containerHeight, nrItems) => {
   const aspectRatio = containerHeight / containerWidth;
-  console.log("ar", aspectRatio)
   if(aspectRatio <= 0.1){ return { nrRows: 1, nrCols : 24 } }
   if(aspectRatio <= 0.3){ return { nrRows: 2, nrCols : 12 } }
   if(aspectRatio <= 0.65){ return { nrRows: 3, nrCols : 8 } }
@@ -41,11 +40,9 @@ const calcNrColsAndRows = (containerWidth, containerHeight, nrItems) => {
 
 //@TODO - consider using viewbox instead fro timeSeries as aspectRatio should be constant, but not for beeSwarms
 const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={}, _chartMargin={}) => {
-  //console.log("nrRows cols", nrRows, nrCols)
   //dimns for overall container
   const containerWidth = container.getBoundingClientRect().width;
   const containerHeight = container.getBoundingClientRect().height;
-  console.log("contw conth", containerWidth, containerHeight)
   const defaultMargin = { left:0, right:0, top:0, bottom:0 };
   const containerMarginValues = typeof _containerMargin === "function" ? _containerMargin(containerWidth, containerHeight) : _containerMargin;
   const containerMargin = { ...defaultMargin, ...containerMarginValues };
@@ -54,7 +51,6 @@ const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={
 
   //nrRows and cols
   const { nrCols, nrRows } = calcNrColsAndRows(contentsWidth, contentsHeight, nrItems);
-  console.log("rows cols", nrRows, nrCols)
   //dimns for single chart
   const width = contentsWidth / nrCols;
   const height = contentsHeight / nrRows;
@@ -65,7 +61,6 @@ const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={
 }
 
 const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
-  //console.log("Data", data)
   //local state
   const [chart, setChart] = useState(null);
   const [sizes, setSizes] = useState(null);
@@ -87,7 +82,6 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
 
   const containerRef = useRef(null);
   //render chart
-  console.log("sizes", sizes)
   useEffect(() =>{
       if(!chart){
         //init
@@ -98,7 +92,6 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
       }else{
         //data
         const processedChartsData = quadrantsBarChartLayout(data, { nrCols: sizes.nrCols });
-        //console.log("processedData", processedChartsData)
         //settings
         chart
             .sizes(sizes)

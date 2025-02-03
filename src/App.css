@@ -47,7 +47,7 @@
   height:auto;
   display:flex;
   justify-content: space-between;
-  background:aqua;
+  /*background:aqua;*/
   transition: height 500ms;
   @media only screen and (max-width: 990px) {
     height:180px;
