@@ -8,6 +8,8 @@ Then the goal is to fill each bar fully, making a perfect square!
 
 It is particularly good for data that naturally falls into 2 or 4 categories, because each half or quadrant represents a category.
 
+A great example of how D3 can turn a simple bar chart into an unusual and meaningful visual.
+
 ## About this project
 
 This is an ongoing little project to show case the potential that D3 offers, by manipulating a simple bar chart in an unusual way.
@@ -28,7 +30,7 @@ User can select a quadrant, and it will enlarge. It is not yet possible to see i
 
 ## Technical Implementation
 
-As is standard, the data (currently mock) runs through a [d3 layout function](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartLayout.js) to prepare it for our d3 component. Note that the layout function 
+As is standard, the data (currently mock) runs through a [D3 layout function](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartLayout.js) to prepare it for our D3 component. Note that the layout function 
 is not yet implemented in the standard way using an inner function to allow chaining of settings, as there are not yet sufficient settings to justify this, although this will change as more functionality is added.
 
 D3 runs on an svg elemnnt that is rendered within a [React component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/QuadrantsBarChart.js).
