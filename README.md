@@ -8,8 +8,6 @@ Then the goal is to fill each bar fully, making a perfect square!
 
 It is particularly good for data that naturally falls into 2 or 4 categories, because each half or quadrant represents a category.
 
-A great example of how D3 can turn a simple bar chart into an unusual and meaningful visual.
-
 ## About this project
 
 This is an ongoing little project to show case the potential that D3 offers, by manipulating a simple bar chart in an unusual way.
