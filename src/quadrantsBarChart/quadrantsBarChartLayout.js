@@ -5,8 +5,9 @@ import { percentageScoreConverter } from '../helpers/dataHelpers';
 const calcRowNr = (i, nrCols) => Math.floor(i / nrCols);
 const calcColNr = (i, nrCols) => i % nrCols;
 
-//console.log("10 items in grid of 2 cols", colNr(9, 2), colNr(2,2))
-//@todo rewrite as a proper d3 layout function instead of using settings as a parameter
+/*
+    @todo rewrite as a proper d3 layout function instead of using settings as a parameter
+*/
 export const quadrantsBarChartLayout = (data, settings={}) => {
     const { measures, chartsData } = data;
     const { nrCols } = settings;
@@ -30,7 +31,7 @@ export const quadrantsBarChartLayout = (data, settings={}) => {
                 key:`quad-${j+1}`,
                 i:j,
                 ...quadrantData,
-                values: j == 0 || j == 2 ? sortAscending(unorderedValues, v => v.value) : sortDescending(unorderedValues, v => v.value)
+                values: j === 0 || j === 2 ? sortAscending(unorderedValues, v => v.value) : sortDescending(unorderedValues, v => v.value)
             }
         }),
         i,

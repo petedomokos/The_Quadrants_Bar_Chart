@@ -4,20 +4,14 @@ import { getRehabData } from './mock/mockData';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+    <div className="app">
+      <header className="app-header">
+        <div>
           The 4 Quadrants Bar Chart: Sports Injury Example
-        </a>
+        </div>
       </header>
       <div className="content">
         <QuadrantsBarChart data={getRehabData(24)} settings={{ nrRows: 3 }}/>
-
       </div>
     </div>
   );
