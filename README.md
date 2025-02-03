@@ -10,7 +10,7 @@ It is particularly good for data that naturally falls into 2 or 4 categories, be
 
 ## About this project
 
-This is an ongoing project. Responsiveness to different screen sizes is not fully functional, and code is not productionised.
+This is an ongoing little project to show case the potential that D3 offers, by manipulating a simple bar chart in an unusual way.
 
 Clone and run the code to see an example of a sports rehabilitation tracker for injured players.
 
@@ -25,6 +25,18 @@ In our sports rehabilitation example, whereas an executive (or manager) may want
 #### Drilling Down
 
 User can select a quadrant, and it will enlarge. It is not yet possible to see info on bars or to drill down into bars.
+
+## Technical Implementation
+
+As is standard, the data (currently mock) runs through a [d3 layout function](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartLayout.js) to prepare it for our d3 component. Note that the layout function 
+is not yet implemented in the standard way using an inner function to allow chaining of settings, as there are not yet sufficient settings to justify this, although this will change as more functionality is added.
+
+D3 runs on an svg elemnnt that is rendered within a [React component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/QuadrantsBarChart.js).
+
+The [D3 component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartComponent.js) uses inner functions rather than classes, because this is more consistent with the implentation of D3 itself, allowing
+for seamless integration of these functions within standard D3 chaining.
+
+
 
 ## More functionality coming soon
 
