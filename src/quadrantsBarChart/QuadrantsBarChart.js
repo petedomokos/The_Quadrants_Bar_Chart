@@ -2,28 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import * as d3 from 'd3';
 import { quadrantsBarChartLayout } from './quadrantsBarChartLayout';
 import quadrantsBarChart from "./quadrantsBarChartComponent";
-import { isNumber } from '../helpers/dataHelpers';
-//children
-//helpers
 
-/*const useStyles = makeStyles((theme) => ({
-  title:{
-    fontSize:"20px",
-    width:"100%",
-    height:props => `${props.titleHeight}px`,
-    display:"flex",
-    justifyContent:"center",
-    alignItems:"center",
-    //border:"solid",
-  },
-  container:{
-    width:"100%",
-    height:props => `calc(100% - ${props.titleHeight}px)`,
-    transform:props => `translate(${props.containerMargin.left}px, ${props.containerMargin.top}px)`
-  },
-}))*/
-
-//const calcOneDimnFromOther = (knownDimn, nrItems) => nrItems % knownDimn === 0 ? nrItems/knownDimn : Math.floor(nrItems/knownDimn) + 1;
+const CONTAINER_MARGIN = { left:10, right:10, top:10, bottom:10 };
 
 const calcNrColsAndRows = (containerWidth, containerHeight, nrItems) => {
   const aspectRatio = containerHeight / containerWidth;
@@ -37,8 +17,6 @@ const calcNrColsAndRows = (containerWidth, containerHeight, nrItems) => {
   if(aspectRatio > 4){ return { nrRows: 24, nrCols : 1 } }
 }
 
-
-//@TODO - consider using viewbox instead fro timeSeries as aspectRatio should be constant, but not for beeSwarms
 const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={}, _chartMargin={}) => {
   //dimns for overall container
   const containerWidth = container.getBoundingClientRect().width;
@@ -67,14 +45,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
   const [selectedQuadrantIndex, setSelectedQuadrantIndex] = useState(null);
   const [headerExtended, setHeaderExtended] = useState(false);
 
-  const containerMargin = { left:10, right:10, top:10, bottom:10 };
   const chartMargin = (width, height) => ({ left:width * 0.1, right:width * 0.1, top:height * 0.1, bottom:height * 0.1 });
-  /*const titleHeight = 50;
-  const styleProps = { containerMargin, titleHeight };
-  const classes = useStyles(styleProps);
-  const classes = {
-    root:"", title:"", container:""
-  }*/
 
   const toggleHeaderExtended = e => {
     setHeaderExtended(prevState => !prevState);
@@ -86,7 +57,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
       if(!chart){
         //init
         setChart(() => quadrantsBarChart())
-        const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.chartsData.length, containerMargin, chartMargin);
+        const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.chartsData.length, CONTAINER_MARGIN, chartMargin);
         //@todo next - clacsizes func must accomodate more than 1 xhart into its space
         setSizes(chartSizes)
       }else{
@@ -110,11 +81,11 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
             .attr("transform", (d,i) => `translate(${d.colNr * sizes.width},${d.rowNr * sizes.height})`)
             .call(chart)
       }
-  }, [chart, sizes, data.chartsData.length, selectedQuadrantIndex, headerExtended])
+  }, [chart, sizes, selectedQuadrantIndex, headerExtended, data])
 
   useEffect(() => {
     let resizeObserver = new ResizeObserver(() => { 
-      const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.chartsData.length, containerMargin, chartMargin);
+      const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.chartsData.length, CONTAINER_MARGIN, chartMargin);
       setSizes(chartSizes);
     }); 
     
@@ -130,12 +101,12 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
               <div className="title-line" key={`title-line-${i}`}>{line}</div> )
             }
           </div>
-          <a 
+          <div
             className={`desc-btn ${headerExtended ? "to-hide" : "to-show"}`}
             onClick={toggleHeaderExtended}
           >
             {`${headerExtended ? "Hide" : "Show"} Description`}
-          </a>
+          </div>
           <div className={`viz-desc ${headerExtended ? "extended" : ""}`}>
             {data.desc?.map((line, i) => 
               <div className="desc-line" key={`desc-line-${i}`}>{line}</div> )
