@@ -45,7 +45,6 @@ export default function quadrantsBarChart() {
     let withQuadrantTitles = true;
 
     function updateDimns(){
-        //console.log("w h m", width, height, margin)
         const maxContentsWidth = width - margin.left - margin.right;
         const maxContentsHeight = height - margin.top - margin.bottom;
         //set chartTitleheight to reduce down to a min
@@ -84,8 +83,7 @@ export default function quadrantsBarChart() {
         //styles that are based on dimns
         styles.chart.title.fontSize = chartTitleHeight * 0.5;
         styles.quadrant.title.fontSize = quadrantHeight * 0.11;
-        styles.bar.fontSize = quadrantHeight * 0.09;;//d3.min([]) barsAreaHeight
-        if(styles.quadrant.title.fontSize < 6){ withQuadrantTitles = false; }
+        styles.bar.fontSize = quadrantHeight * 0.09;
     };
 
     //state
@@ -97,8 +95,6 @@ export default function quadrantsBarChart() {
         updateDimns();
 
         selection.each(function (data,i) {
-            //console.log("selection", i, this)
-            //console.log("data", data);
             if(d3.select(this).selectAll("*").empty()){ init(this, data); }
             update(this, data);
         })
@@ -233,12 +229,10 @@ export default function quadrantsBarChart() {
                     .merge(quadrantContainerG)
                     .attr("transform", (d,i) => `translate(${(i === 0 || i === 2) ? 0 : quadrantWidth + axesStrokeWidth}, ${(i === 0 || i === 1) ? 0 : quadrantHeight + axesStrokeWidth})`)
                     .on("click", function(e,d){
-                        console.log("click quad")
                         e.stopPropagation();
                         if(selectedQuadrantIndex !== d.i){
                             setSelectedQuadrantIndex(d.i)
                         }else{
-                            //this is temp until we have a close icon and cna then interact with selected chart
                             setSelectedQuadrantIndex("")
                         }
                     })
