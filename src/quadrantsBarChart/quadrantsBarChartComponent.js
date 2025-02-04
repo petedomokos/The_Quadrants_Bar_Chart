@@ -3,7 +3,7 @@ import { isNumber } from '../helpers/dataHelpers';
 import { remove } from '../helpers/domHelpers';
 import { COLOURS } from "../constants";
 
-const { BLUE, GREY } = COLOURS;
+const { BLUE, LIGHT_BLUE, GREY } = COLOURS;
 
 export default function quadrantsBarChart() {
     // settings that apply to all quadrantsBartCharts, in case there is more than 1 eg a row of players
@@ -42,22 +42,25 @@ export default function quadrantsBarChart() {
     }
 
     //settings
-    let withQuadrantTitles = true;
+    let withQuadrantTitles;
+    let withBarLabels;
 
     function updateDimns(){
         const maxContentsWidth = width - margin.left - margin.right;
         const maxContentsHeight = height - margin.top - margin.bottom;
         //set chartTitleheight to reduce down to a min
-        chartTitleHeight = d3.max([16, maxContentsHeight * 0.1]);
+        chartTitleHeight = d3.max([18, maxContentsHeight * 0.1]);
         quadrantTitleHeight = 20;
         withQuadrantTitles = true;
+        withBarLabels = true;
         if(maxContentsWidth < 100 || maxContentsHeight < 120){
             //remove quad labels
             withQuadrantTitles = false;
             quadrantTitleHeight = 0;
         }
         if(maxContentsWidth < 40 || maxContentsHeight < 70){
-            chartTitleHeight = 15;
+            chartTitleHeight = 16;
+            withBarLabels = false;
         }
         if(maxContentsWidth < 25 || maxContentsHeight < 40){
             chartTitleHeight = 0;
@@ -81,7 +84,7 @@ export default function quadrantsBarChart() {
         barsAreaHeight = quadrantHeight - quadrantTitleHeight;
 
         //styles that are based on dimns
-        styles.chart.title.fontSize = chartTitleHeight * 0.5;
+        styles.chart.title.fontSize = chartTitleHeight * 0.4;
         styles.quadrant.title.fontSize = quadrantHeight * 0.11;
         styles.bar.fontSize = quadrantHeight * 0.09;
     };
@@ -106,15 +109,10 @@ export default function quadrantsBarChart() {
             //or just remove the init-update functions altogether
             //bg
             container.append("rect").attr("class", "chart-bg")
-                .attr("stroke", "none")// "grey")
+                .attr("stroke", "none")
                 .attr("fill", "transparent");
 
             const contentsG = container.append("g").attr("class", "contents");
-            /*contentsG.append("rect").attr("class", "contents-bg")
-                .attr("stroke-width", 0.1)
-                .attr("stroke", "black")
-                .attr("fill", "orange")// "transparent");*/
-
             //chart title and contents gs
             const chartTitleG = contentsG.append("g").attr("class", "chart-title");
             const chartContentsG = contentsG.append("g").attr("class", "chart-contents");
@@ -127,10 +125,6 @@ export default function quadrantsBarChart() {
                         .attr("dominant-baseline", "central")
                         .attr("opacity", 0.7)
                         .attr("stroke-width", 0.1);
-
-            /*chartTitleG.append("rect").attr("class", "chart-title-bg")
-                .attr("stroke", "black")
-                .attr("fill", "transparent");*/
 
             //g that handles scaling when selections made
             chartContentsG.append("g").attr("class", "scale");
@@ -153,16 +147,8 @@ export default function quadrantsBarChart() {
             const contentsG = container.select("g.contents")
                 .attr("transform", `translate(${margin.left + extraHorizMargin}, ${margin.top + extraVertMargin})`)
 
-            /*contentsG.select("rect.contents-bg")
-                .attr("width", `${contentsWidth}px`)
-                .attr("height", `${contentsHeight}px`);*/
-
             //chart title
             const chartTitleG = contentsG.select("g.chart-title");
-            /*chartTitleG.select("rect.chart-title-bg")
-                .attr("width", `${contentsWidth}px`)
-                .attr("height", `${chartTitleHeight}px`);*/
-
             chartTitleG.select("text.primary")
                 .attr("transform", `translate(${contentsWidth/2}, ${chartTitleHeight/2})`)
                 .attr("font-size", styles.chart.title.fontSize)
@@ -209,19 +195,12 @@ export default function quadrantsBarChart() {
                                 .attr("opacity", withQuadrantTitles ? 0.7 : 0)
                                 .attr("display", withQuadrantTitles ? null : "none");
 
-                        /*quadrantG
-                            .append("rect")
-                                .attr("class", "quadrant-bg")
-                                .attr("stroke", "grey")
-                                .attr("stroke-width", 0.1)
-                                .attr("fill", "none");*/
-
                         const barsAreaG = quadrantG.append("g").attr("class", "bars-area");
                         barsAreaG
                             .append("rect")
                                 .attr("class", "bars-area-bg")
                                 .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? GREY : BLUE)
-                                .attr("stroke-width", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? 0.1 : 0.5)
+                                .attr("stroke-width", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? 0.1 : 0.3)
                                 .attr("fill", "transparent");
                          
                         barsAreaG.append("g").attr("class", "bars");
@@ -267,11 +246,6 @@ export default function quadrantsBarChart() {
                                     .attr("opacity", withQuadrantTitles ? 0.6 : 0)
                                     .on("end", function(){ d3.select(this).attr("display", withQuadrantTitles ? null : "none") });
                         
-                        /*
-                        quadrantG.select("rect.quadrant-bg")
-                            .attr("width", quadrantWidth)
-                            .attr("height", quadrantHeight);*/
-                        
                         const barAreaShiftVert = i === 0 || i === 1 ? quadrantTitleHeight : 0;
                         const barsAreaG = quadrantG.select("g.bars-area")
                             .attr("transform", `translate(0, ${barAreaShiftVert})`);
@@ -283,8 +257,8 @@ export default function quadrantsBarChart() {
                         barsAreaG.select("rect.bars-area-bg")
                                 .transition()
                                 .duration(500)
-                                .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? GREY : BLUE)
-                                .attr("stroke-width", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? 0.1 : 0.5)
+                                    .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? GREY : BLUE)
+                                    .attr("stroke-width", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? 0.1 : 0.3)
 
                         //bars
                         const nrBars = quadD.values.length;
@@ -295,43 +269,50 @@ export default function quadrantsBarChart() {
                         const gapBetweenBars = d3.min([axesStrokeWidth * 0.7, potentialGapBetweenBars]);
                         const totalSpaceForBars = barsAreaWidth - gapBetweenBars * nrGaps;
                         const barWidth = totalSpaceForBars/nrBars;
-                        //const barLabelWidth = 50;
-                        //const barLabelHeight = 15;
+                        const barLabelWidth = 15;
+                        const barLabelHeight = 4;
+                        const horizLabelMargin = barWidth * 0.2;
 
                         const barsG = barsAreaG.select("g.bars");
-                        const barG = barsG.selectAll("g.bar").data(quadD.values, d => d.key);
+                        const barG = barsG.selectAll("g.bar").data(quadD.values, d => d.measureKey);
                         barG.enter()
                             .append("g")
                                 .attr("class", "bar")
-                                .each(function(barD,i){
+                                .each(function(barD,j){
                                     const barHeight = (barD.value/100) * barsAreaHeight;
                                     const barG = d3.select(this);
-                                    barG.append("rect")
-                                        .attr("class", "bar")
-                                        .attr("width", barWidth)
-                                        .attr("height", barHeight)
-                                        .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
+                                    barG
+                                        .append("rect")
+                                            .attr("class", "bar")
+                                                .attr("width", barWidth)
+                                                .attr("height", barHeight)
+                                                .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === j ? BLUE : GREY);
 
-                                    /*
-                                    const labelG = barG.append("g")
-                                        .attr("class", "bar-label")
-                                        .attr("opacity", selectedQuadrantIndex === i ? 1 : 0);
+                                    const shouldShowlabels = withBarLabels && selectedQuadrantIndex === j;
+                                   
+                                    const labelG = barG
+                                        .append("g")
+                                            .attr("class", "bar-label")
+                                                .attr("display", shouldShowlabels ? null : "none")
+                                                .attr("opacity", shouldShowlabels ? 1 : 0);
                                     
                                     labelG.append("rect")
-                                        .attr("fill", "black")
+                                        .attr("fill", LIGHT_BLUE)
+                                        .attr("stroke-width", 0.3)
                                         .attr("rx", "2")
                                         .attr("ry", "2")
                                     
                                     labelG.append("text")
-                                        .attr("x", "5px")
+                                        .attr("x", barLabelWidth/2)
                                         .attr("y", `${barLabelHeight/2}`)
                                         .attr("dominant-baseline", "central")
+                                        .attr("text-anchor", "middle")
                                         .attr("fill", "white")
                                         .attr("stroke", "white")
                                         .attr("stroke-width", 0.1)
                                         .attr("font-size", styles.bar.fontSize)
-                                        .text("label");
-                                    */
+                                        .text(barD.label);
+                                    
 
                                 })
                                 .merge(barG)
@@ -342,29 +323,37 @@ export default function quadrantsBarChart() {
                                         .attr("transform", `translate(${j * (barWidth + gapBetweenBars)},${i < 2 ? barsAreaHeight - barHeight : 0})`);
 
                                     barG.select("rect.bar")
-                                        //.transition()
-                                        //.duration(500)
+                                        .transition()
+                                        .duration(500)
                                             .attr("width", barWidth)
                                             .attr("height", barHeight)
                                             .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
 
-                                    //@todo- work out why (Math.cos(Math.PI/4) * barLabelHeight) doesnt shift teh label down enough
-                                    //const labelX = i < 2 ? -barWidth/2 + barLabelHeight * 0.3 : barWidth/2 - barLabelHeight * 0.3;
-                                    //const labelY = i < 2 ? barHeight +(barLabelHeight * 1.65) /*+ (Math.cos(Math.PI/4) * barLabelHeight)*/: 0// barLabelHeight * 0.25;
-                                    /*
-                                    const labelG = barG.select("g.bar-label")
-                                        .attr("transform", `translate(${labelX} ${labelY}) rotate(-45)`)
-                                        
+                                    const vertAdjustmentForOverlap = 2.5;
+                                    const labelAngle = -45;
+                                    //@todo - if angel not 45, need to use toRadians function
+                                    const labelAngleRads = Math.PI/4;
+                                    const labelX = i < 2 ? -(barLabelWidth * Math.cos(labelAngleRads)) + horizLabelMargin : horizLabelMargin; 
+                                    const labelY = i < 2 ? (barHeight - vertAdjustmentForOverlap) + (barLabelWidth * Math.sin(labelAngleRads)) : 0; 
+                                    const shouldShowlabels = withBarLabels && selectedQuadrantIndex === i;
+                                    
+                                    const labelG = barG.select("g.bar-label");
+                                    //turn display on before fade in if necc
+                                    //@todo - use a fadeIn custom function that checks for this
+                                    if(shouldShowlabels && labelG.attr("display") === "none"){ labelG.attr("display", null) }
                                     labelG
+                                        .attr("transform", `translate(${labelX} ${labelY}) rotate(${labelAngle})`)
                                         .transition()
                                         .duration(500)
-                                            .attr("opacity", selectedQuadrantIndex === i ? 1 : 0);
+                                            .attr("opacity", shouldShowlabels ? 1 : 0)
+                                            //if revealing them, we need to set display to null before trans
+                                            //.on("end", function(){ d3.select(this).attr("display", shouldShowlabels ? null : "none" )});
 
                                     labelG.select("rect")
                                         .attr("width", `${barLabelWidth}px`)
                                         .attr("height", `${barLabelHeight}px`)
                                         .attr("opacity", 0.8);
-                                    */
+                                    
 
                                 })
 

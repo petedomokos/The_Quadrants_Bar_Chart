@@ -18,12 +18,14 @@ export const quadrantsBarChartLayout = (data, settings={}) => {
                 .values
                 .map(v => {
                     const measure = measures.find(m => m.key === v.measureKey);
-                    const { preInjuryValue, range } = measure;
+                    const { preInjuryValue, range, name, label } = measure;
                     const convertToPC = percentageScoreConverter(preInjuryValue, { range, useRangeAsBound:true });
                     return {
                         ...v,
                         rawValue:v.value,
-                        value:convertToPC(v.value)
+                        value:convertToPC(v.value),
+                        name,
+                        label
                     }
                 });
 

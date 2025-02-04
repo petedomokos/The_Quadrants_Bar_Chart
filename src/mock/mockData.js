@@ -6,32 +6,31 @@ const categories = [
   { key:"postural", name:"Postural" },
   { key:"technical", name:"Technical" },
 ]
-
 const measures = [
   //sharpness
-  { preInjuryValue:27.2, key:"s1", label:"Max Speed", name:"", categoryKey:"sharpness", range:[20, 35] },
-  { preInjuryValue:0.25, key:"s2", label:"Turn Rate - Decel (sec)", name:"", categoryKey:"sharpness", range:[20, 35], optimalValue:"min" },
-  { preInjuryValue:0.16, key:"s3", label:"Turns Rate - Accel (sec)", name:"", categoryKey:"sharpness", range:[20, 35], optimalValue:"min" },
-  { preInjuryValue:19, key:"s4", label:"Short Sprints (nr)", name:"", categoryKey:"sharpness", range:[20, 35], optimalValue:"max" },
-  { preInjuryValue:10, key:"s5", label:"Self-Report (/10)", name:"", categoryKey:"sharpness",range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:27.2, key:"s1", name:"Max Speed", label:"MAX", categoryKey:"sharpness", range:[20, 35] },
+  { preInjuryValue:0.25, key:"s2", name:"Turn Rate - Decel (sec)", label:"TRD", categoryKey:"sharpness", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:0.16, key:"s3", name:"Turns Rate - Accel (sec)", label:"TRA", categoryKey:"sharpness", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:19, key:"s4", name:"Short Sprints (nr)", label:"SS", categoryKey:"sharpness", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:10, key:"s5", name:"Self-Report (/10)", label:"REP", categoryKey:"sharpness",range:[20, 35], optimalValue:"max" },
   //cardio
-  { preInjuryValue:8, key:"c1", label:"High Speed Runs (nr)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
-  { preInjuryValue:15, key:"c2", label:"Med Speed Runs (nr)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
-  { preInjuryValue:9.8, key:"c3", label:"Total Distance (km)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
-  { preInjuryValue:25, key:"c4", label:"Ball Actions (nr)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
-  { preInjuryValue:10, key:"c5", label:"Self-Report (/10)", name:"", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:8, key:"c1", name:"High Speed Runs (nr)", label:"HSR", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:15, key:"c2", name:"Med Speed Runs (nr)", label:"MSR", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:9.8, key:"c3", name:"Total Distance (km)", label:"TOT", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:25, key:"c4", name:"Ball Actions (nr)", label:"ACT", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:10, key:"c5", name:"Self-Report (/10)", label:"REP", categoryKey:"cardio", range:[20, 35], optimalValue:"max" },
   //postural
-  { preInjuryValue:0, key:"p1", label:"Knee Flex (deg)", name:"", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
-  { preInjuryValue:180, key:"p2", label:"Knee Ext (deg)", name:"", categoryKey:"postural", range:[20, 35], optimalValue:"max" },
-  { preInjuryValue:120, key:"p3", label:"Turn(deg)", name:"", categoryKey:"postural", range:[100, 140], optimalValue:120 }, //optimalValue should be 'other' ie a middle number
-  { preInjuryValue:10, key:"p4", label:"Squat Position (/10)", name:"", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
-  { preInjuryValue:10, key:"p5", label:"Self-Report (/10)", name:"", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:0, key:"p1", name:"Knee Flex (deg)", label:"KF", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:180, key:"p2", name:"Knee Ext (deg)", label:"KE", categoryKey:"postural", range:[20, 35], optimalValue:"max" },
+  { preInjuryValue:120, key:"p3", name:"Turn(deg)", label:"TUR", categoryKey:"postural", range:[100, 140], optimalValue:120 }, //optimalValue should be 'other' ie a middle number
+  { preInjuryValue:10, key:"p4", name:"Squat Position (/10)", label:"SQU", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:10, key:"p5", name:"Self-Report (/10)", label:"REP", categoryKey:"postural", range:[20, 35], optimalValue:"min" },
   //technical
-  { preInjuryValue:92, key:"t1", label:"T1", name:"Ball Control (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
-  { preInjuryValue:64, key:"t2", label:"T2", name:"Attacking Pass Success (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
-  { preInjuryValue:77, key:"t3", label:"T3", name:"Forward Pass Success (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
-  { preInjuryValue:74, key:"t4", label:"T4", name:"Dribble Success (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min"},
-  { preInjuryValue:79, key:"t5", label:"T5", name:"Shots On Target (%)", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:92, key:"t1", name:"Ball Control (%)", label:"CON", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:64, key:"t2", name:"Attacking Pass Success (%)", label:"APS", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:77, key:"t3", name:"Forward Pass Success (%)", label:"FPS", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
+  { preInjuryValue:74, key:"t4", name:"Dribble Success (%)", label:"DS", categoryKey:"technical", range:[20, 35], optimalValue:"min"},
+  { preInjuryValue:79, key:"t5", name:"Shots On Target (%)", label:"SOT", categoryKey:"technical", range:[20, 35], optimalValue:"min" },
 ]
 /*
 The Data story

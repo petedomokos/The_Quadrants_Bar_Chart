@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { quadrantsBarChartLayout } from './quadrantsBarChartLayout';
 import quadrantsBarChart from "./quadrantsBarChartComponent";
 
-const CONTAINER_MARGIN = { left:10, right:10, top:10, bottom:10 };
+const CONTAINER_MARGIN = { left:10, right:10, top:10, bottom:40 };
 
 const calcNrColsAndRows = (containerWidth, containerHeight, nrItems) => {
   const aspectRatio = containerHeight / containerWidth;
@@ -121,7 +121,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
         </div>
       </div>
       <div className={`viz-container ${headerExtended ? "with-extended-header" : ""}`} ref={containerRef}>
-        <svg width="100%" height="100%">
+        <svg width="100%" height="100%" >
           <g className="vis-contents"></g>
         </svg>
       </div>
