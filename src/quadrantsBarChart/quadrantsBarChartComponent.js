@@ -34,6 +34,9 @@ export default function quadrantsBarChart() {
         quadrant:{
             title:{
                 fontSize:10
+            },
+            selectedTitle:{
+                fontSize:10
             }
         },
         bar:{
@@ -86,6 +89,7 @@ export default function quadrantsBarChart() {
         //styles that are based on dimns
         styles.chart.title.fontSize = chartTitleHeight * 0.4;
         styles.quadrant.title.fontSize = quadrantHeight * 0.11;
+        styles.quadrant.selectedTitle.fontSize = d3.max([3.5, quadrantHeight * 0.11]);
         styles.bar.fontSize = quadrantHeight * 0.09;
     };
 
@@ -123,7 +127,7 @@ export default function quadrantsBarChart() {
                     .attr("class", "primary")
                         .attr("text-anchor", "middle")
                         .attr("dominant-baseline", "central")
-                        .attr("opacity", 0.7)
+                        .attr("opacity", 0.55)
                         .attr("stroke-width", 0.1);
 
             //g that handles scaling when selections made
@@ -192,8 +196,19 @@ export default function quadrantsBarChart() {
                                 .attr("text-anchor", "middle")
                                 .attr("dominant-baseline", "central")
                                 .attr("stroke-width", 0.1)
-                                .attr("opacity", withQuadrantTitles ? 0.7 : 0)
+                                .attr("opacity", withQuadrantTitles ? 0.5 : 0)
                                 .attr("display", withQuadrantTitles ? null : "none");
+
+                        const shouldShowSelectedQuadrantTitle = !withQuadrantTitles && selectedQuadrantIndex === i;
+                        quadrantG
+                            .append("text")
+                                .attr("class", "selected-quadrant-title")
+                                    .attr("text-anchor", "middle")
+                                    .attr("dominant-baseline", i < 2 ? null : "hanging")
+                                    .attr("stroke-width", 0.1)
+                                    .attr("display", shouldShowSelectedQuadrantTitle ? null : "none")
+                                    .attr("opacity", shouldShowSelectedQuadrantTitle ? 0.5 : 0)
+
 
                         const barsAreaG = quadrantG.append("g").attr("class", "bars-area");
                         barsAreaG
@@ -243,8 +258,23 @@ export default function quadrantsBarChart() {
                             .text(quadD.title)
                                 .transition()
                                 .duration(200)
-                                    .attr("opacity", withQuadrantTitles ? 0.6 : 0)
+                                    .attr("opacity", withQuadrantTitles ? 0.5 : 0)
                                     .on("end", function(){ d3.select(this).attr("display", withQuadrantTitles ? null : "none") });
+
+
+                        const shouldShowSelectedQuadrantTitle = !withQuadrantTitles && selectedQuadrantIndex === i;
+                        const selectedQuadrantTitleText = quadrantG.select("text.selected-quadrant-title");
+                        //@todo - use a fadeIn custom function that checks for this
+                        if(shouldShowSelectedQuadrantTitle && selectedQuadrantTitleText.attr("display") === "none"){ selectedQuadrantTitleText.attr("display", null) }
+                        selectedQuadrantTitleText
+                            .attr("x", quadrantWidth/2)
+                            .attr("y", i < 2 ? -2 : quadrantHeight + 2)
+                            .attr("font-size", styles.quadrant.selectedTitle.fontSize)
+                            .text(quadD.title)
+                                .transition()
+                                .duration(500)
+                                    .attr("opacity", shouldShowSelectedQuadrantTitle ? 0.5 : 0)
+                                        .on("end", function(){ d3.select(this).attr("display", shouldShowSelectedQuadrantTitle ? null : "none")})
                         
                         const barAreaShiftVert = i === 0 || i === 1 ? quadrantTitleHeight : 0;
                         const barsAreaG = quadrantG.select("g.bars-area")
@@ -281,12 +311,6 @@ export default function quadrantsBarChart() {
                                 .each(function(barD,j){
                                     const barHeight = (barD.value/100) * barsAreaHeight;
                                     const barG = d3.select(this);
-                                    barG
-                                        .append("rect")
-                                            .attr("class", "bar")
-                                                .attr("width", barWidth)
-                                                .attr("height", barHeight)
-                                                .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === j ? BLUE : GREY);
 
                                     const shouldShowlabels = withBarLabels && selectedQuadrantIndex === j;
                                    
@@ -312,6 +336,13 @@ export default function quadrantsBarChart() {
                                         .attr("stroke-width", 0.1)
                                         .attr("font-size", styles.bar.fontSize)
                                         .text(barD.label);
+
+                                    barG
+                                        .append("rect")
+                                            .attr("class", "bar")
+                                                .attr("width", barWidth)
+                                                .attr("height", barHeight)
+                                                .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === j ? BLUE : GREY);
                                     
 
                                 })

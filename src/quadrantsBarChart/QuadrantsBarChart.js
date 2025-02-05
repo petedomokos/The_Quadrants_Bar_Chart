@@ -113,7 +113,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
             }
           </div>
         </div>
-        <div>
+        <div className="chart-info">
           <div className="player-name">
             <div className="label">player</div>
             <div className="name">{data.playerName}</div>
