@@ -18,7 +18,7 @@ Clone and run the code to see an example of a sports rehabilitation tracker for 
 
 #### Bar ordering
 
-The highest bars, representing the measures that going the best, are always towards the centre of the overall square. This make it easier to see the shapre of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
+The highest bars, representing the measures that going the best, are always towards the centre of the overall square. This make it easier to see the shape of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
 
 In our sports rehabilitation example, whereas an executive (or manager) may want to just know the overall shape for all injured players, a coach or physio would be more interested in the specific bars.
 
