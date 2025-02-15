@@ -18,7 +18,7 @@ Clone and run the code to see an example of a sports rehabilitation tracker for 
 
 #### Bar ordering
 
-The highest bars, representing the measures that going the best, are always towards the centre of the overall square. This make it easier to see the shapre of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
+The highest bars, representing the measures that going the best, are always towards the centre of the overall square. This make it easier to see the shape of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
 
 In our sports rehabilitation example, whereas an executive (or manager) may want to just know the overall shape for all injured players, a coach or physio would be more interested in the specific bars.
 
@@ -31,9 +31,9 @@ User can select a quadrant, and it will enlarge. It is not yet possible to see i
 As is standard, the data (currently mock) runs through a [D3 layout function](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartLayout.js) to prepare it for our D3 component. Note that the layout function 
 is not yet implemented in the standard way using an inner function to allow chaining of settings, as there are not yet sufficient settings to justify this, although this will change as more functionality is added.
 
-D3 runs on an svg elemnnt that is rendered within a [React component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/QuadrantsBarChart.js).
+D3 runs on an svg element that is rendered within a [React component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/QuadrantsBarChart.js).
 
-The [D3 component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartComponent.js) uses inner functions rather than classes, because this is more consistent with the implentation of D3 itself, allowing
+The [D3 component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartComponent.js) uses inner functions rather than classes, because this is more consistent with the implementation of D3 itself, allowing
 for seamless integration of these functions within standard D3 chaining.
 
 
