@@ -94,7 +94,7 @@ export const getRehabData = (nrSessions=20) => {
     desc:[
         "Shows player's journey towards being ready to perform, based on pre-injury indicators (standardised to 100%) across 4 categories.",
         "When all bars are filled in 100%, it shows a perfect square which means the player is back to pre-injury levels.",
-        "Click on a chart to enlarge/reduce a category."
+        "Spread fingers to zoom in. Drag to pan. Click on a quadrant to select/deselect. "
     ],
     playerName:"James Stevens",
     measures,

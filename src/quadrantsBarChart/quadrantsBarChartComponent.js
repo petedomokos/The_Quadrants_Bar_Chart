@@ -394,7 +394,6 @@ export default function quadrantsBarChart() {
             
             quadrantContainerG.exit().call(remove);
 
-
         }
 
         return selection;

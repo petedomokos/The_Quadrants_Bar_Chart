@@ -38,7 +38,7 @@ const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={
   return { containerWidth, containerHeight, containerMargin, width, height, margin, nrRows, nrCols, nrCharts:nrItems }
 }
 
-const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
+const QuadrantsBarChart = ({ data={ chartsData:[] } }) => {
   //local state
   const [chart, setChart] = useState(null);
   const [sizes, setSizes] = useState(null);
@@ -52,6 +52,8 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
   }
 
   const containerRef = useRef(null);
+  const zoomGRef = useRef(null);
+  
   //render chart
   useEffect(() =>{
       if(!chart){
@@ -69,9 +71,20 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
             .selectedQuadrantIndex(selectedQuadrantIndex)
             .setSelectedQuadrantIndex(setSelectedQuadrantIndex)
 
+        //zoom
+        const handleZoom = e => {
+          d3.select(zoomGRef.current).attr("transform", e.transform)
+        }
+        const zoom = d3.zoom()
+          .scaleExtent([1, 100])
+          .translateExtent([[0, 0], [sizes.containerWidth, sizes.containerHeight]])
+          .on("zoom", handleZoom)
+
+        const svg = d3.select(containerRef.current).call(zoom)
+
         //call chart
-        const visContentsG = d3.select(containerRef.current).select("svg").selectAll("g.vis-contents")
-          .attr("transform", `translate(${sizes.containerMargin.left}, ${sizes.containerMargin.top})`);
+        const visContentsG = svg.select("svg").selectAll("g.vis-contents")
+          .attr("transform", `translate(${sizes.containerMargin.left}, ${sizes.containerMargin.top})`)
 
         const chartG = visContentsG.selectAll("g.chart").data(processedChartsData);
         chartG.enter()
@@ -82,6 +95,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
             .call(chart)
       }
   }, [chart, sizes, selectedQuadrantIndex, headerExtended, data])
+  
 
   useEffect(() => {
     let resizeObserver = new ResizeObserver(() => { 
@@ -121,8 +135,10 @@ const QuadrantsBarChart = ({ data={ chartsData:[] }, settings={} }) => {
         </div>
       </div>
       <div className={`viz-container ${headerExtended ? "with-extended-header" : ""}`} ref={containerRef}>
-        <svg width="100%" height="100%" >
-          <g className="vis-contents"></g>
+        <svg width="100%" height="100%">
+          <g ref={zoomGRef}>
+            <g className="vis-contents"></g>
+          </g>
         </svg>
       </div>
     </div>
