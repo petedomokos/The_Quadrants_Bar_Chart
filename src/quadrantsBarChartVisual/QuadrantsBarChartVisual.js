@@ -5,16 +5,16 @@ import quadrantsBarChart from "./quadrantsBarChartComponent";
 
 const CONTAINER_MARGIN = { left:10, right:10, top:10, bottom:40 };
 
-const calcNrColsAndRows = (containerWidth, containerHeight, nrItems) => {
-  const aspectRatio = containerHeight / containerWidth;
-  if(aspectRatio <= 0.1){ return { nrRows: 1, nrCols : 24 } }
-  if(aspectRatio <= 0.3){ return { nrRows: 2, nrCols : 12 } }
-  if(aspectRatio <= 0.65){ return { nrRows: 3, nrCols : 8 } }
-  if(aspectRatio <= 1){ return { nrRows: 4, nrCols : 6 } }
-  if(aspectRatio <= 1.35){ return { nrRows: 6, nrCols : 4 } }
-  if(aspectRatio <= 2){ return { nrRows: 8, nrCols : 3 } }
-  if(aspectRatio <= 4){ return { nrRows: 12, nrCols : 2 } }
-  if(aspectRatio > 4){ return { nrRows: 24, nrCols : 1 } }
+const calcNrColsAndRows = (containerWidth, containerHeight, n) => {
+  //aspect ratio, a
+  const a = containerWidth / containerHeight;
+  const proportionOfNForWidth = Math.sqrt(n * a);
+  const nrCols = Math.round(proportionOfNForWidth);
+  //always round up the rows so there is enough cells
+  const nrRows = Math.ceil(n/nrCols);
+  //@todo - consider adjusting cols if ther is an orphan on last row ie 
+  //const nrOnLastRow = n - (nrRows-1) * nrCols;
+  return { nrCols, nrRows }
 }
 
 const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={}, _chartMargin={}) => {
@@ -65,7 +65,6 @@ const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
       }else{
         //data
         const processedDatapoints = quadrantsBarChartLayout(data, { nrCols: sizes.nrCols });
-        console.log("processedDs", processedDatapoints)
         //settings
         chart
             .sizes(sizes)

@@ -1,12 +1,10 @@
 import './App.css';
 import QuadrantsBarChartVisual from './quadrantsBarChartVisual/QuadrantsBarChartVisual';
-import { getRehabDataForVisuals, createMockDataForVisuals } from './mock/mockData';
+import { /*getRehabDataForVisuals,*/ createMockDataForVisuals } from './mock/mockData';
 
 function App() {
-  const mockData =  createMockDataForVisuals(24);
-  const rehabData = getRehabDataForVisuals(24);
-  console.log("mock", mockData)
-  console.log('rehab', rehabData)
+  const mockData =  createMockDataForVisuals(1000);
+  //const rehabData = getRehabDataForVisuals(24);
   const quadrantsBarChartVisualData = mockData;
   return (
     <div className="app">
