@@ -9,12 +9,13 @@ const calcColNr = (i, nrCols) => i % nrCols;
     @todo rewrite as a proper d3 layout function instead of using settings as a parameter
 */
 export const quadrantsBarChartLayout = (data, settings={}) => {
-    const { measures, chartsData } = data;
+    const { measures, datapoints } = data;
     const { nrCols } = settings;
-    return chartsData.map((chartData,i) => ({
-        ...chartData,
-        quadrantsData:chartData.quadrantsData.map((quadrantData, j) => {
-            const unorderedValues = quadrantData
+    return datapoints.map((datapoint,i) => ({
+        key:datapoint.key,
+        title:datapoint.title,
+        quadrantsData:datapoint.categoriesData.map((categoryData, j) => {
+            const unorderedValues = categoryData
                 .values
                 .map(v => {
                     const measure = measures.find(m => m.key === v.measureKey);
@@ -32,7 +33,7 @@ export const quadrantsBarChartLayout = (data, settings={}) => {
             return {
                 key:`quad-${j+1}`,
                 i:j,
-                ...quadrantData,
+                ...categoryData,
                 values: j === 0 || j === 2 ? sortAscending(unorderedValues, v => v.value) : sortDescending(unorderedValues, v => v.value)
             }
         }),

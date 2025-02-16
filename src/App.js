@@ -1,8 +1,13 @@
 import './App.css';
-import QuadrantsBarChart from './quadrantsBarChart/QuadrantsBarChart';
-import { getRehabData } from './mock/mockData';
+import QuadrantsBarChartVisual from './quadrantsBarChartVisual/QuadrantsBarChartVisual';
+import { getRehabDataForVisuals, createMockDataForVisuals } from './mock/mockData';
 
 function App() {
+  const mockData =  createMockDataForVisuals(24);
+  const rehabData = getRehabDataForVisuals(24);
+  console.log("mock", mockData)
+  console.log('rehab', rehabData)
+  const quadrantsBarChartVisualData = mockData;
   return (
     <div className="app">
       <header className="app-header">
@@ -11,7 +16,7 @@ function App() {
         </div>
       </header>
       <div className="content">
-        <QuadrantsBarChart data={getRehabData(24)} settings={{ nrRows: 3 }}/>
+        <QuadrantsBarChartVisual data={quadrantsBarChartVisualData} settings={{ nrRows: 3 }}/>
       </div>
     </div>
   );

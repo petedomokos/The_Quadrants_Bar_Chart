@@ -1,12 +1,12 @@
-import { range } from 'd3';
+import { range, min, max, randomNormal } from 'd3';
 
-const categories = [
+const rehabCategories = [
   { key:"sharpness", name:"Sharpness" },
   { key:"cardio", name:"Cardio" },
   { key:"postural", name:"Postural" },
   { key:"technical", name:"Technical" },
 ]
-const measures = [
+const rehabMeasures = [
   //sharpness
   { preInjuryValue:27.2, key:"s1", name:"Max Speed", label:"MAX", categoryKey:"sharpness", range:[20, 35] },
   { preInjuryValue:0.25, key:"s2", name:"Turn Rate - Decel (sec)", label:"TRD", categoryKey:"sharpness", range:[20, 35], optimalValue:"min" },
@@ -88,325 +88,128 @@ const valuesForSessionsPostInjury = {
   t5:[44, 53, 51, 48, 52, 47, 54, 58, 52, 62, 54, 58, 62, 57, 58, 57, 61, 55, 54, 58, 60, 59, 60, 57],
 }
 
-export const getRehabData = (nrSessions=20) => {
-  return {
+const howItWorks = [
+  "When all bars are filled in 100%, it shows a perfect square which means the player is back to pre-injury levels.",
+  "Spread fingers to zoom in. Drag to pan. Click on a category to select/deselect. "
+]
+
+export const getRehabDataForVisuals = (nrSessions=20) => {
+  const rehabData = {
     title:["Rehab Tracker of Post-Injury", "Training Sessions"],
     desc:[
         "Shows player's journey towards being ready to perform, based on pre-injury indicators (standardised to 100%) across 4 categories.",
-        "When all bars are filled in 100%, it shows a perfect square which means the player is back to pre-injury levels.",
-        "Spread fingers to zoom in. Drag to pan. Click on a quadrant to select/deselect. "
+        ...howItWorks
     ],
     playerName:"James Stevens",
+    measures:rehabMeasures,
+    datapoints:range(nrSessions).map(sessionIndex => createSessionData(sessionIndex))
+  }
+  return prepareRehabDataForVisuals(rehabData);
+}
+
+function prepareRehabDataForVisuals(rehabData){
+  const { title, desc, playerName, measures, datapoints } = rehabData;
+  return {
+    title,
+    desc,
+    info:{ label:"Player Name", name: playerName },
     measures,
-    chartsData:range(1, nrSessions+1).map(n => createSessionData(n))
+    datapoints:datapoints.map(datapoint => ({
+      ...datapoint,
+      categoriesData:datapoint.categoriesData.map(datapointCategory => ({
+        ...datapointCategory,
+
+      }))
+
+    }))
+  }
+
+}
+
+function createSessionData(sessionIndex){
+  const sessionKey = `session-${sessionIndex}`;
+  return {
+    key:sessionKey,
+    title:`Session ${sessionIndex}`,
+    categoriesData:range(4).map(categoryIndex => createRehabCategoriesData(sessionIndex, sessionKey, categoryIndex))
   }
 }
 
-function createSessionData(sessionNr){
+function createRehabCategoriesData(sessionIndex, sessionKey, categoryIndex){
+  const category = rehabCategories[categoryIndex];
+  const categoryKey = `${sessionKey}-category-${categoryIndex}`;
   return {
-    key:`session-${sessionNr}`,
-    title:`Session ${sessionNr}`,
-    quadrantsData:[1,2,3,4].map(quadrantNr => createQuadrantData(sessionNr, quadrantNr))
-  }
-}
-
-function createQuadrantData(sessionNr, quadrantNr){
-  const quadrantCategory = categories[quadrantNr-1];
-  return {
-    key:`session-${sessionNr}-quadrant-${quadrantNr}`,
-    title:quadrantCategory.name,
-    values:measures
-      .filter(m => m.categoryKey === quadrantCategory.key)
+    key:categoryKey,
+    title:category.name,
+    values:rehabMeasures
+      .filter(m => m.categoryKey === category.key)
       .map(m => ({
+        key:`${categoryKey}-measure-${m.key}`,
         measureKey:m.key,
-        value:valuesForSessionsPostInjury[m.key] ? valuesForSessionsPostInjury[m.key][sessionNr-1] : null
+        value:valuesForSessionsPostInjury[m.key] ? valuesForSessionsPostInjury[m.key][sessionIndex] : null
       }))
   }
 }
 
-export const quadrantsBarChartsData = {
-    title:"Quadrant Bar Chart Display",
-    desc:"description of the charts goes here",
-    chartsData:[
-      {
-        key:"quadrant-bar-chart-1",
-        title:"Chart 1",
-        desc:"description of the chart goes here",
-        quadrantsData:[
-          {
-            key:"quad1",
-            title:"Quad 1",
-            values:[
-              { label:"1A", value:90 }, { label:"1B", value:80 }, { label:"1C", value:70 }, { label:"1D", value:70 }, { label:"1E", value:70 }
-            ],
-          },
-          {
-            key:"quad2",
-            title:"Quad 2",
-            values:[
-              { label:"2A", value:50 }, { label:"2B", value:50 }, { label:"2C", value:30 }, { label:"2D", value:30 }, { label:"2E", value:20 }
-            ],
-          },
-          {
-            key:"quad3",
-            title:"Quad 3",
-            values:[
-              { label:"3A", value:69 }, { label:"3B", value:65 }, { label:"3C", value:80 }, { label:"3D", value:90 }, { label:"3E", value:50 }
-            ],
-          },
-          {
-            key:"quad4",
-            title:"Quad 4",
-            values:[
-              { label:"4A", value:89 }, { label:"4B", value:69 }, { label:"4C", value:53 }, { label:"4D", value:63 }, { label:"4E", value:75 }
-            ],
-          }
-        ]
-      },
-      {
-        key:"quadrant-bar-chart-2",
-        title:"Chart 2",
-        desc:"description of the chart goes here",
-        quadrantsData:[
-          {
-            key:"quad1",
-            title:"Quad 1",
-            values:[
-              { label:"1A", value:90 }, { label:"1B", value:80 }, { label:"1C", value:70 }, { label:"1D", value:70 }, { label:"1E", value:70 }
-            ],
-          },
-          {
-            key:"quad2",
-            title:"Quad 2",
-            values:[
-              { label:"2A", value:50 }, { label:"2B", value:50 }, { label:"2C", value:30 }, { label:"2D", value:30 }, { label:"2E", value:20 }
-            ],
-          },
-          {
-            key:"quad3",
-            title:"Quad 3",
-            values:[
-              { label:"3A", value:69 }, { label:"3B", value:65 }, { label:"3C", value:80 }, { label:"3D", value:90 }, { label:"3E", value:50 }
-            ],
-          },
-          {
-            key:"quad4",
-            title:"Quad 4",
-            values:[
-              { label:"4A", value:89 }, { label:"4B", value:69 }, { label:"4C", value:53 }, { label:"4D", value:63 }, { label:"4E", value:75 }
-            ],
-          }
-        ]
-      },
-      {
-        key:"quadrant-bar-chart-3",
-        title:"Chart 3",
-        desc:"description of the chart goes here",
-        quadrantsData:[
-          {
-            key:"quad1",
-            title:"Quad 1",
-            values:[
-              { label:"1A", value:90 }, { label:"1B", value:80 }, { label:"1C", value:70 }, { label:"1D", value:70 }, { label:"1E", value:70 }
-            ],
-          },
-          {
-            key:"quad2",
-            title:"Quad 2",
-            values:[
-              { label:"2A", value:50 }, { label:"2B", value:50 }, { label:"2C", value:30 }, { label:"2D", value:30 }, { label:"2E", value:20 }
-            ],
-          },
-          {
-            key:"quad3",
-            title:"Quad 3",
-            values:[
-              { label:"3A", value:69 }, { label:"3B", value:65 }, { label:"3C", value:80 }, { label:"3D", value:90 }, { label:"3E", value:50 }
-            ],
-          },
-          {
-            key:"quad4",
-            title:"Quad 4",
-            values:[
-              { label:"4A", value:89 }, { label:"4B", value:69 }, { label:"4C", value:53 }, { label:"4D", value:63 }, { label:"4E", value:75 }
-            ],
-          }
-        ]
-      },
-      {
-        key:"quadrant-bar-chart-4",
-        title:"Chart 4",
-        desc:"description of the chart goes here",
-        quadrantsData:[
-          {
-            key:"quad1",
-            title:"Quad 1",
-            values:[
-              { label:"1A", value:90 }, { label:"1B", value:80 }, { label:"1C", value:70 }, { label:"1D", value:70 }, { label:"1E", value:70 }
-            ],
-          },
-          {
-            key:"quad2",
-            title:"Quad 2",
-            values:[
-              { label:"2A", value:50 }, { label:"2B", value:50 }, { label:"2C", value:30 }, { label:"2D", value:30 }, { label:"2E", value:20 }
-            ],
-          },
-          {
-            key:"quad3",
-            title:"Quad 3",
-            values:[
-              { label:"3A", value:69 }, { label:"3B", value:65 }, { label:"3C", value:80 }, { label:"3D", value:90 }, { label:"3E", value:50 }
-            ],
-          },
-          {
-            key:"quad4",
-            title:"Quad 4",
-            values:[
-              { label:"4A", value:89 }, { label:"4B", value:69 }, { label:"4C", value:53 }, { label:"4D", value:63 }, { label:"4E", value:75 }
-            ],
-          }
-        ]
-      },
-      {
-        key:"quadrant-bar-chart-5",
-        title:"Chart 5",
-        desc:"description of the chart goes here",
-        quadrantsData:[
-          {
-            key:"quad1",
-            title:"Quad 1",
-            values:[
-              { label:"1A", value:90 }, { label:"1B", value:80 }, { label:"1C", value:70 }, { label:"1D", value:70 }, { label:"1E", value:70 }
-            ],
-          },
-          {
-            key:"quad2",
-            title:"Quad 2",
-            values:[
-              { label:"2A", value:50 }, { label:"2B", value:50 }, { label:"2C", value:30 }, { label:"2D", value:30 }, { label:"2E", value:20 }
-            ],
-          },
-          {
-            key:"quad3",
-            title:"Quad 3",
-            values:[
-              { label:"3A", value:69 }, { label:"3B", value:65 }, { label:"3C", value:80 }, { label:"3D", value:90 }, { label:"3E", value:50 }
-            ],
-          },
-          {
-            key:"quad4",
-            title:"Quad 4",
-            values:[
-              { label:"4A", value:89 }, { label:"4B", value:69 }, { label:"4C", value:53 }, { label:"4D", value:63 }, { label:"4E", value:75 }
-            ],
-          }
-        ]
-      },
-      {
-        key:"quadrant-bar-chart-6",
-        title:"Chart 6",
-        desc:"description of the chart goes here",
-        quadrantsData:[
-          {
-            key:"quad1",
-            title:"Quad 1",
-            values:[
-              { label:"1A", value:90 }, { label:"1B", value:80 }, { label:"1C", value:70 }, { label:"1D", value:70 }, { label:"1E", value:70 }
-            ],
-          },
-          {
-            key:"quad2",
-            title:"Quad 2",
-            values:[
-              { label:"2A", value:50 }, { label:"2B", value:50 }, { label:"2C", value:30 }, { label:"2D", value:30 }, { label:"2E", value:20 }
-            ],
-          },
-          {
-            key:"quad3",
-            title:"Quad 3",
-            values:[
-              { label:"3A", value:69 }, { label:"3B", value:65 }, { label:"3C", value:80 }, { label:"3D", value:90 }, { label:"3E", value:50 }
-            ],
-          },
-          {
-            key:"quad4",
-            title:"Quad 4",
-            values:[
-              { label:"4A", value:89 }, { label:"4B", value:69 }, { label:"4C", value:53 }, { label:"4D", value:63 }, { label:"4E", value:75 }
-            ],
-          }
-        ]
-      },
-      {
-        key:"quadrant-bar-chart-7",
-        title:"Chart 7",
-        desc:"description of the chart goes here",
-        quadrantsData:[
-          {
-            key:"quad1",
-            title:"Quad 1",
-            values:[
-              { label:"1A", value:90 }, { label:"1B", value:80 }, { label:"1C", value:70 }, { label:"1D", value:70 }, { label:"1E", value:70 }
-            ],
-          },
-          {
-            key:"quad2",
-            title:"Quad 2",
-            values:[
-              { label:"2A", value:50 }, { label:"2B", value:50 }, { label:"2C", value:30 }, { label:"2D", value:30 }, { label:"2E", value:20 }
-            ],
-          },
-          {
-            key:"quad3",
-            title:"Quad 3",
-            values:[
-              { label:"3A", value:69 }, { label:"3B", value:65 }, { label:"3C", value:80 }, { label:"3D", value:90 }, { label:"3E", value:50 }
-            ],
-          },
-          {
-            key:"quad4",
-            title:"Quad 4",
-            values:[
-              { label:"4A", value:89 }, { label:"4B", value:69 }, { label:"4C", value:53 }, { label:"4D", value:63 }, { label:"4E", value:75 }
-            ],
-          }
-        ]
-      },
-      {
-        key:"quadrant-bar-chart-8",
-        title:"Chart 8",
-        desc:"description of the chart goes here",
-        quadrantsData:[
-          {
-            key:"quad1",
-            title:"Quad 1",
-            values:[
-              { label:"1A", value:90 }, { label:"1B", value:80 }, { label:"1C", value:70 }, { label:"1D", value:70 }, { label:"1E", value:70 }
-            ],
-          },
-          {
-            key:"quad2",
-            title:"Quad 2",
-            values:[
-              { label:"2A", value:50 }, { label:"2B", value:50 }, { label:"2C", value:30 }, { label:"2D", value:30 }, { label:"2E", value:20 }
-            ],
-          },
-          {
-            key:"quad3",
-            title:"Quad 3",
-            values:[
-              { label:"3A", value:69 }, { label:"3B", value:65 }, { label:"3C", value:80 }, { label:"3D", value:90 }, { label:"3E", value:50 }
-            ],
-          },
-          {
-            key:"quad4",
-            title:"Quad 4",
-            values:[
-              { label:"4A", value:89 }, { label:"4B", value:69 }, { label:"4C", value:53 }, { label:"4D", value:63 }, { label:"4E", value:75 }
-            ],
-          }
-        ]
-      },
-    ]
+
+//GENERIC RANDOMISED MOCK DATA ------------------------------------------
+const createMockDatum = (datapointIndex, categories=[], measures=[]) => {
+  //Give the measure scores for this datapoint a random mean around 70, and standard deviation around 30
+  const meanOfMean = 70;
+  const stdDevOfMean = 40;
+  const meanOfStdDev = 30;
+  const stdDevOfStdDev = 20;
+  const meanOfScore = randomNormal(meanOfMean, stdDevOfMean)();
+  const stdDevOfScore = randomNormal(meanOfStdDev, stdDevOfStdDev)();
+  //create the score generator using a normal distribution with this mean and stdDev
+  const randGenerator = randomNormal(meanOfScore, stdDevOfScore);
+  return { 
+    key:`datapoint-${datapointIndex}`,
+    title:`Datapoint Set ${datapointIndex + 1}`,
+    categoriesData:range(4).map(categoryIndex => {
+      const category = categories[categoryIndex];
+      const categoryKey = `datapoint-${datapointIndex}-category-${categoryIndex}`;
+      return {
+        key:categoryKey,
+        title:`Category ${categoryIndex + 1}`,
+        values:measures
+          .filter(m => m.categoryKey === category.key)
+          .map(m => ({ key:`${categoryKey}-${m.key}`, measureKey:m.key, value:bound(Math.round(randGenerator())) }))
+      }
+    })
   }
+}
+
+const createMockMeasures = (nrMeasuresInEachCategory=[5,5,5,5]) => {
+  return nrMeasuresInEachCategory
+    .map((nrMeasures,i) => 
+      range(nrMeasures).map(measureIndex => ({
+        categoryKey:`category-${i}`,
+        key:`measure-${measureIndex}`,
+        label:`M${measureIndex + 1}`,
+        preInjuryValue:100
+      }))
+    )
+    .reduce((arr1,arr2) => [...arr1,...arr2])
+  
+}
+
+//{ preInjuryValue:27.2, key:"s1", name:"Max Speed", label:"MAX", categoryKey:"sharpness", range:[20, 35] },
+
+export function createMockDataForVisuals(nrDatapoints=100){
+  const categories = range(4).map(categoryIndex => ({ key:`category-${categoryIndex}`, title:`Category ${categoryIndex + 1}`}));
+  const measures = createMockMeasures();
+  return {
+    title:[`${nrDatapoints} sets of datapoints displayed`],
+    desc:[
+      "Shows how each set of data compares against an ideal model. ",
+      ...howItWorks
+  ],
+    measures,
+    datapoints:range(nrDatapoints).map(datapointIndex => createMockDatum(datapointIndex, categories, measures))
+  };
+}
+
+function bound(value, lower=0, upper=100){
+  return max([lower, min([upper, value])]);
+}

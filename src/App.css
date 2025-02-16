@@ -186,7 +186,7 @@
   
 }
 
-.player-name {
+.visual-name {
   height:30px;
   display:flex;
   align-items: center;
@@ -210,14 +210,14 @@
   }
 }
 
-.player-name .label {
+.visual-name .label {
   padding:0 5px;
   color:#4169E1;
   text-align:left;
   vertical-align: middle;
 }
 
-.player-name .name {
+.visual-name .name {
   padding:0 5px;
   text-align:left;
   vertical-align: middle;

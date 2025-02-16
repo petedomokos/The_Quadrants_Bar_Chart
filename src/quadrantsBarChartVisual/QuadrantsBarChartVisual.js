@@ -38,7 +38,7 @@ const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={
   return { containerWidth, containerHeight, containerMargin, width, height, margin, nrRows, nrCols, nrCharts:nrItems }
 }
 
-const QuadrantsBarChart = ({ data={ chartsData:[] } }) => {
+const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
   //local state
   const [chart, setChart] = useState(null);
   const [sizes, setSizes] = useState(null);
@@ -59,12 +59,13 @@ const QuadrantsBarChart = ({ data={ chartsData:[] } }) => {
       if(!chart){
         //init
         setChart(() => quadrantsBarChart())
-        const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.chartsData.length, CONTAINER_MARGIN, chartMargin);
+        const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.datapoints.length, CONTAINER_MARGIN, chartMargin);
         //@todo next - clacsizes func must accomodate more than 1 xhart into its space
         setSizes(chartSizes)
       }else{
         //data
-        const processedChartsData = quadrantsBarChartLayout(data, { nrCols: sizes.nrCols });
+        const processedDatapoints = quadrantsBarChartLayout(data, { nrCols: sizes.nrCols });
+        console.log("processedDs", processedDatapoints)
         //settings
         chart
             .sizes(sizes)
@@ -86,7 +87,7 @@ const QuadrantsBarChart = ({ data={ chartsData:[] } }) => {
         const visContentsG = svg.select("svg").selectAll("g.vis-contents")
           .attr("transform", `translate(${sizes.containerMargin.left}, ${sizes.containerMargin.top})`)
 
-        const chartG = visContentsG.selectAll("g.chart").data(processedChartsData);
+        const chartG = visContentsG.selectAll("g.chart").data(processedDatapoints);
         chartG.enter()
           .append("g")
             .attr("class", "chart")
@@ -99,12 +100,12 @@ const QuadrantsBarChart = ({ data={ chartsData:[] } }) => {
 
   useEffect(() => {
     let resizeObserver = new ResizeObserver(() => { 
-      const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.chartsData.length, CONTAINER_MARGIN, chartMargin);
+      const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.datapoints.length, CONTAINER_MARGIN, chartMargin);
       setSizes(chartSizes);
     }); 
     
     resizeObserver.observe(containerRef.current);
-  }, [data.chartsData.length]);
+  }, [data.datapoints.length]);
 
   return (
     <div className="viz-root">
@@ -128,10 +129,12 @@ const QuadrantsBarChart = ({ data={ chartsData:[] } }) => {
           </div>
         </div>
         <div className="chart-info">
-          <div className="player-name">
-            <div className="label">player</div>
-            <div className="name">{data.playerName}</div>
-          </div>
+          {data.info && 
+            <div className="visual-name">
+              <div className="label">{data.info.label}</div>
+              <div className="name">{data.info.name}</div>
+            </div>
+          }
         </div>
       </div>
       <div className={`viz-container ${headerExtended ? "with-extended-header" : ""}`} ref={containerRef}>
@@ -145,6 +148,6 @@ const QuadrantsBarChart = ({ data={ chartsData:[] } }) => {
   )
 }
 
-export default QuadrantsBarChart;
+export default QuadrantsBarChartVisual;
 
 
