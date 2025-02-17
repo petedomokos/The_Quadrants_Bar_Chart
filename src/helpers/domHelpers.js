@@ -7,6 +7,36 @@ const TRANSITIONS = {
     slow:500
 }
 
+
+export function fadeIn(selection, options={}){
+    const { transition, cb=()=>{}, display=null, opacity=1 } = options;
+    selection.each(function(){
+        //will be multiple exits because of the delay in removing
+        const sel = d3.select(this);
+        const isFadingIn = sel.attr("class").includes("fading-in");
+        const currOpacity = sel.attr("opacity") ? +sel.attr("opacity") : null;
+        const currDisplay = sel.attr("display");
+        const somethingMustChange = currOpacity !== opacity || currDisplay !== display;
+
+        if(!isFadingIn && somethingMustChange){
+            d3.select(this)
+                .attr("opacity", d3.select(this).attr("opacity") || 0)
+                //adjust display if required or if new value passed in
+                .attr("display", currDisplay !== display ? display : currDisplay)
+                .classed("fading-in", true)
+                .transition("fade-in")
+                    .delay(transition?.delay || 0)
+                    .duration(isNumber(transition?.duration) ? transition.duration : TRANSITIONS.MED) //WAS CONTENT_FADE_DURATION FOR KPIS
+                    .attr("opacity", opacity)
+                    .on("end", function() { 
+                        d3.select(this).classed("fading-in", false); 
+                        cb.call(this);
+                    });
+        }
+    })
+}
+
+
 export function fadeOut(selection, options={}){
     const { transition, cb=()=>{}, shouldRemove, display="none", opacity=0 } = options;
     selection.each(function(){

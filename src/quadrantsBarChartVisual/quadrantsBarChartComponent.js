@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { isNumber } from '../helpers/dataHelpers';
-import { remove } from '../helpers/domHelpers';
+import { remove, fadeIn } from '../helpers/domHelpers';
 import { COLOURS } from "../constants";
 
 const { BLUE, LIGHT_BLUE, GREY } = COLOURS;
@@ -178,9 +178,7 @@ export default function quadrantsBarChart() {
                     .attr("transform", `scale(${isNumber(selectedQuadrantIndex) ? 0.5 : 1})`)
                     .attr("transform-origin", chartTransformOrigin);
 
-            
             //Quadrants
-            //@todo - USE JOIN INSTEAD OF THIS OUT-OF-DATE TECHNIQUE
             const quadrantContainerG = scaleG.selectAll("g.quadrant-container").data(data.quadrantsData, d => d.key)
             quadrantContainerG.enter()
                 .append("g")
@@ -303,40 +301,19 @@ export default function quadrantsBarChart() {
                         const barLabelHeight = 4;
                         const horizLabelMargin = barWidth * 0.2;
 
+                        //@todo - base this showing on zoomScale * quadrantsWidth
+                        const shouldShowBars = true;
+                        const barsData = shouldShowBars ? quadD.values : [];
+
                         const barsG = barsAreaG.select("g.bars");
-                        const barG = barsG.selectAll("g.bar").data(quadD.values, d => d.measureKey);
+                        const barG = barsG.selectAll("g.bar").data(barsData, d => d.key);
                         barG.enter()
                             .append("g")
-                                .attr("class", "bar")
+                                .attr("class", `bar`) 
                                 .each(function(barD,j){
-                                    const barHeight = (barD.value/100) * barsAreaHeight;
+                                    
+                                    const barHeight = barD.calcBarHeight(barsAreaHeight);
                                     const barG = d3.select(this);
-
-                                    const shouldShowlabels = withBarLabels && selectedQuadrantIndex === j;
-                                   
-                                    const labelG = barG
-                                        .append("g")
-                                            .attr("class", "bar-label")
-                                                .attr("display", shouldShowlabels ? null : "none")
-                                                .attr("opacity", shouldShowlabels ? 1 : 0);
-                                    
-                                    labelG.append("rect")
-                                        .attr("fill", LIGHT_BLUE)
-                                        .attr("stroke-width", 0.3)
-                                        .attr("rx", "2")
-                                        .attr("ry", "2")
-                                    
-                                    labelG.append("text")
-                                        .attr("x", barLabelWidth/2)
-                                        .attr("y", `${barLabelHeight/2}`)
-                                        .attr("dominant-baseline", "central")
-                                        .attr("text-anchor", "middle")
-                                        .attr("fill", "white")
-                                        .attr("stroke", "white")
-                                        .attr("stroke-width", 0.1)
-                                        .attr("font-size", styles.bar.fontSize)
-                                        .text(barD.label);
-
                                     barG
                                         .append("rect")
                                             .attr("class", "bar")
@@ -348,7 +325,8 @@ export default function quadrantsBarChart() {
                                 })
                                 .merge(barG)
                                 .each(function(barD,j){
-                                    const barHeight = (barD.value/100) * barsAreaHeight;
+
+                                    const barHeight = barD.calcBarHeight(barsAreaHeight);
                                     //no space between bars and outer edge of chart
                                     const barG = d3.select(this)
                                         .attr("transform", `translate(${j * (barWidth + gapBetweenBars)},${i < 2 ? barsAreaHeight - barHeight : 0})`);
@@ -360,39 +338,115 @@ export default function quadrantsBarChart() {
                                             .attr("height", barHeight)
                                             .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
 
-                                    const vertAdjustmentForOverlap = 2.5;
-                                    const labelAngle = -45;
-                                    //@todo - if angel not 45, need to use toRadians function
-                                    const labelAngleRads = Math.PI/4;
-                                    const labelX = i < 2 ? -(barLabelWidth * Math.cos(labelAngleRads)) + horizLabelMargin : horizLabelMargin; 
-                                    const labelY = i < 2 ? (barHeight - vertAdjustmentForOverlap) + (barLabelWidth * Math.sin(labelAngleRads)) : 0; 
-                                    const shouldShowlabels = withBarLabels && selectedQuadrantIndex === i;
-                                    
-                                    const labelG = barG.select("g.bar-label");
-                                    //turn display on before fade in if necc
-                                    //@todo - use a fadeIn custom function that checks for this
-                                    if(shouldShowlabels && labelG.attr("display") === "none"){ labelG.attr("display", null) }
-                                    labelG
-                                        .attr("transform", `translate(${labelX} ${labelY}) rotate(${labelAngle})`)
-                                        .transition()
-                                        .duration(500)
-                                            .attr("opacity", shouldShowlabels ? 1 : 0)
-                                            //if revealing them, we need to set display to null before trans
-                                            //.on("end", function(){ d3.select(this).attr("display", shouldShowlabels ? null : "none" )});
+                                    //labels
+                                    const shouldShowLabels = withBarLabels && selectedQuadrantIndex === j;
+                                    const labelG = barG.selectAll("g.bar-label").data(shouldShowLabels ? [1] : []);
+                                    labelG.enter()
+                                        .append("g")
+                                            .attr("class", "bar-label")
+                                            .call(fadeIn)
+                                            .each(function(){
+                                                const labelG = d3.select(this);
+                                                labelG.append("rect")
+                                                    .attr("fill", LIGHT_BLUE)
+                                                    .attr("stroke-width", 0.3)
+                                                    .attr("rx", "2")
+                                                    .attr("ry", "2");
+                                                
+                                                labelG.append("text")
+                                                    .attr("x", barLabelWidth/2)
+                                                    .attr("y", `${barLabelHeight/2}`)
+                                                    .attr("dominant-baseline", "central")
+                                                    .attr("text-anchor", "middle")
+                                                    .attr("fill", "white")
+                                                    .attr("stroke", "white")
+                                                    .attr("stroke-width", 0.1)
+                                                    .attr("font-size", styles.bar.fontSize)
+                                                    .text(barD.label);
+                                            })
+                                            .merge(labelG)
+                                            .each(function(){
+                                                const labelG = d3.select(this);
+                                                const vertAdjustmentForOverlap = 2.5;
+                                                const labelAngle = -45;
+                                                //@todo - if angel not 45, need to use toRadians function
+                                                const labelAngleRads = Math.PI/4;
+                                                const labelX = i < 2 ? -(barLabelWidth * Math.cos(labelAngleRads)) + horizLabelMargin : horizLabelMargin; 
+                                                const labelY = i < 2 ? (barHeight - vertAdjustmentForOverlap) + (barLabelWidth * Math.sin(labelAngleRads)) : 0; 
+                                                const shouldShowlabels = withBarLabels && selectedQuadrantIndex === i;
+                                                
+                                                //turn display on before fade in if necc
+                                                //@todo - use a fadeIn custom function that checks for this
+                                                if(shouldShowlabels && labelG.attr("display") === "none"){ labelG.attr("display", null) }
+                                                labelG
+                                                    .attr("transform", `translate(${labelX} ${labelY}) rotate(${labelAngle})`)
+                                                    .transition()
+                                                    .duration(500)
+                                                        .attr("opacity", shouldShowlabels ? 1 : 0)
+                                                        //if revealing them, we need to set display to null before trans
+                                                        //.on("end", function(){ d3.select(this).attr("display", shouldShowlabels ? null : "none" )});
 
-                                    labelG.select("rect")
-                                        .attr("width", `${barLabelWidth}px`)
-                                        .attr("height", `${barLabelHeight}px`)
-                                        .attr("opacity", 0.8);
-                                    
+                                                labelG.select("rect")
+                                                    .attr("width", `${barLabelWidth}px`)
+                                                    .attr("height", `${barLabelHeight}px`)
+                                                    .attr("opacity", 0.8);
 
+                                            })
                                 })
 
                         barG.exit().call(remove);
 
+                        /*
+                        //@todo - use this outline path option for larger dataset on screen"
+                        const outlineData = shouldShowBars ? [] : [quadD.values];
+                        const outlineG = barsG.selectAll("g.outline").data(outlineData)
+                        outlineG.enter()
+                            .append("g")
+                                .attr("class", "outline")
+                                .each(function(values){
+                                    d3.select(this).append("path")
+                                        .attr("stroke", "red")
+                                        .attr("stroke-width", 0.4)
+                                        .attr("fill", "none")
+                                })
+                                .merge(outlineG)
+                                //.attr("transform", `translate(0, ${quadrantHeight})`)
+                                .each(function(values){
+                                    d3.select(this).select("path")
+                                        .attr("d", quadrantPathD(values, i, barWidth, barsAreaHeight, gapBetweenBars))
+                                })
+
+                        outlineG.exit().call(remove);
+                        */
+
                     })
             
             quadrantContainerG.exit().call(remove);
+
+            /*
+            //@todo - use this path option for larger dataset on screen"
+
+            function quadrantPathD(values, quadIndex, barWidth, barsAreaHeight, gapBetweenBars){
+                const barsOutline = values
+                    .map((v,k) => {
+                        if(quadIndex <= 1){
+                            //only draw 2nd vert line for last bar
+                            if(k < values.length - 1){ return `v ${-v.calcBarHeight(barsAreaHeight)} h ${barWidth + gapBetweenBars} m 0 ${v.calcBarHeight(barsAreaHeight)}` }
+                            return `v ${-v.calcBarHeight(barsAreaHeight)} h ${barWidth} v ${v.calcBarHeight(barsAreaHeight)}`
+                        }else{
+                            //only draw 2nd vert line for last bar
+                            if(k < values.length - 1){ return `v ${v.calcBarHeight(barsAreaHeight)} h ${barWidth + gapBetweenBars} m 0 ${-v.calcBarHeight(barsAreaHeight)}` }
+                            return `v ${v.calcBarHeight(barsAreaHeight)} h ${barWidth} v ${-v.calcBarHeight(barsAreaHeight)}`
+                        }
+                    })
+                    .reduce((str1, str2) => `${str1}${str2}`)
+
+                if(quadIndex <= 1){
+                    return `M 0 ${barsAreaHeight} ${barsOutline} h ${-values.length * (barWidth) + -(values.length - 1) * gapBetweenBars} z`
+                }
+                return `M 0 0 ${barsOutline} h ${-values.length * (barWidth) + -(values.length - 1) * gapBetweenBars} z`
+            }
+            */
 
         }
 

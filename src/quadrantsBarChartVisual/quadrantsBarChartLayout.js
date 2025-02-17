@@ -21,12 +21,14 @@ export const quadrantsBarChartLayout = (data, settings={}) => {
                     const measure = measures.find(m => m.key === v.measureKey);
                     const { preInjuryValue, range, name, label } = measure;
                     const convertToPC = percentageScoreConverter(preInjuryValue, { range, useRangeAsBound:true });
+                    const value = convertToPC(v.value);
                     return {
                         ...v,
                         rawValue:v.value,
-                        value:convertToPC(v.value),
+                        value,
                         name,
-                        label
+                        label,
+                        calcBarHeight:maxHeight => (value/100) * maxHeight
                     }
                 });
 
