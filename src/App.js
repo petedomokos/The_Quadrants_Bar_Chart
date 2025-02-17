@@ -3,7 +3,7 @@ import QuadrantsBarChartVisual from './quadrantsBarChartVisual/QuadrantsBarChart
 import { /*getRehabDataForVisuals,*/ createMockDataForVisuals } from './mock/mockData';
 
 function App() {
-  const mockData =  createMockDataForVisuals(1000);
+  const mockData =  createMockDataForVisuals(10);
   //const rehabData = getRehabDataForVisuals(24);
   const quadrantsBarChartVisualData = mockData;
   return (

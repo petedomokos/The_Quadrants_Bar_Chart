@@ -311,7 +311,6 @@ export default function quadrantsBarChart() {
                             .append("g")
                                 .attr("class", `bar`) 
                                 .each(function(barD,j){
-                                    
                                     const barHeight = barD.calcBarHeight(barsAreaHeight);
                                     const barG = d3.select(this);
                                     barG
@@ -320,8 +319,6 @@ export default function quadrantsBarChart() {
                                                 .attr("width", barWidth)
                                                 .attr("height", barHeight)
                                                 .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === j ? BLUE : GREY);
-                                    
-
                                 })
                                 .merge(barG)
                                 .each(function(barD,j){
@@ -339,6 +336,7 @@ export default function quadrantsBarChart() {
                                             .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
 
                                     //labels
+                                    /*
                                     const shouldShowLabels = withBarLabels && selectedQuadrantIndex === j;
                                     const labelG = barG.selectAll("g.bar-label").data(shouldShowLabels ? [1] : []);
                                     labelG.enter()
@@ -392,6 +390,7 @@ export default function quadrantsBarChart() {
                                                     .attr("opacity", 0.8);
 
                                             })
+                                    */
                                 })
 
                         barG.exit().call(remove);
