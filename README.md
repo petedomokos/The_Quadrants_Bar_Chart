@@ -36,6 +36,8 @@ Its very important in dataviz that space is used effectively. In this implementa
 
 ## Technical implementation
 
+This is React plus D3 project, developed on a chrome browser, and is responsive to all display sizes. However, it hasn't been tested on other browsers or mobile devices.
+
 As is standard, the data (currently mock) runs through a [D3 layout function](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartLayout.js) to prepare it for our D3 component. Note that the layout function 
 is not yet implemented in the standard way using an inner function to allow chaining of settings, as there are not yet sufficient settings to justify this, although this will change as more functionality is added.
 
