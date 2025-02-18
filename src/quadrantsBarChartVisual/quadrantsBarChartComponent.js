@@ -89,7 +89,7 @@ export default function quadrantsBarChart() {
         //styles that are based on dimns
         styles.chart.title.fontSize = chartTitleHeight * 0.4;
         styles.quadrant.title.fontSize = quadrantHeight * 0.11;
-        styles.quadrant.selectedTitle.fontSize = d3.max([3.5, quadrantHeight * 0.11]);
+        styles.quadrant.selectedTitle.fontSize = quadrantHeight * 0.11;
         styles.bar.fontSize = quadrantHeight * 0.09;
     };
 

@@ -89,15 +89,15 @@ const valuesForSessionsPostInjury = {
 }
 
 const howItWorks = [
-  "When all bars are filled in 100%, it shows a perfect square which means the player is back to pre-injury levels.",
   "Spread fingers to zoom in. Drag to pan. Click on a category to select/deselect. "
 ]
 
-export const getRehabDataForVisuals = (nrSessions=20) => {
+export const getRehabDataForVisuals = (nrSessions=24) => {
   const rehabData = {
     title:["Rehab Tracker of Post-Injury", "Training Sessions"],
     desc:[
         "Shows player's journey towards being ready to perform, based on pre-injury indicators (standardised to 100%) across 4 categories.",
+        "When all bars are filled in 100%, it shows a perfect square which means the player is back to pre-injury levels.",
         ...howItWorks
     ],
     playerName:"James Stevens",
@@ -120,7 +120,6 @@ function prepareRehabDataForVisuals(rehabData){
         ...datapointCategory,
 
       }))
-
     }))
   }
 
@@ -130,7 +129,7 @@ function createSessionData(sessionIndex){
   const sessionKey = `session-${sessionIndex}`;
   return {
     key:sessionKey,
-    title:`Session ${sessionIndex}`,
+    title:`Session ${sessionIndex + 1}`,
     categoriesData:range(4).map(categoryIndex => createRehabCategoriesData(sessionIndex, sessionKey, categoryIndex))
   }
 }
@@ -200,9 +199,10 @@ export function createMockDataForVisuals(nrDatapoints=100){
   const categories = range(4).map(categoryIndex => ({ key:`category-${categoryIndex}`, title:`Category ${categoryIndex + 1}`}));
   const measures = createMockMeasures();
   return {
-    title:[`${nrDatapoints} sets of datapoints displayed`],
+    title:[`${nrDatapoints} sets of mock datapoints displayed`],
     desc:[
       "Shows how each set of data compares against an ideal model. ",
+      "When all bars are filled in 100%, it shows a perfect square which means the dataset has reached the ideal state.",
       ...howItWorks
   ],
     measures,

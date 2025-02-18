@@ -2,9 +2,9 @@ import * as d3 from "d3";
 import { isNumber } from './dataHelpers';
 
 const TRANSITIONS = {
-    fast:50,
-    med:200,
-    slow:500
+    FAST:50,
+    MED:200,
+    SLOW:500
 }
 
 
@@ -17,7 +17,6 @@ export function fadeIn(selection, options={}){
         const currOpacity = sel.attr("opacity") ? +sel.attr("opacity") : null;
         const currDisplay = sel.attr("display");
         const somethingMustChange = currOpacity !== opacity || currDisplay !== display;
-
         if(!isFadingIn && somethingMustChange){
             d3.select(this)
                 .attr("opacity", d3.select(this).attr("opacity") || 0)

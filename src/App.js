@@ -1,20 +1,28 @@
 import './App.css';
+import React, { useState, useCallback } from 'react'
+import Header from "./Header";
 import QuadrantsBarChartVisual from './quadrantsBarChartVisual/QuadrantsBarChartVisual';
-import { /*getRehabDataForVisuals,*/ createMockDataForVisuals } from './mock/mockData';
+import { getRehabDataForVisuals, createMockDataForVisuals } from './mock/mockData';
 
+const exampleItems = [
+  { key:"sports-rehab", name:"24 Sports Rehabilitation Sessions" },
+  { key:"mock-dataset-500", name:"500 Sets Of Mock Data" }
+
+]
 function App() {
-  const mockData =  createMockDataForVisuals(10);
-  //const rehabData = getRehabDataForVisuals(24);
-  const quadrantsBarChartVisualData = mockData;
+  const [selectedExample, setSelectedExample] = useState(exampleItems[0].key);
+  const data = selectedExample === 'mock-dataset-500' ? createMockDataForVisuals(500) : getRehabDataForVisuals(24);
+
+  const handleSelectExample = useCallback(key => {
+    //remove existing
+    setSelectedExample(key)
+
+  }, [selectedExample]);
   return (
     <div className="app">
-      <header className="app-header">
-        <div>
-          The 4 Quadrants Bar Chart: Sports Injury Example
-        </div>
-      </header>
+      <Header menuItems={exampleItems} selected={selectedExample} onSelect={handleSelectExample} />
       <div className="content">
-        <QuadrantsBarChartVisual data={quadrantsBarChartVisualData} settings={{ nrRows: 3 }}/>
+        <QuadrantsBarChartVisual data={data} settings={{ nrRows: 3 }}/>
       </div>
     </div>
   );
