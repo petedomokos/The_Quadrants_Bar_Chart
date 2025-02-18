@@ -34,8 +34,6 @@ In large datasets, like example 2, it is helpful for the user to zoom in (spread
 
 Its very important in dataviz that space is used effectively. In this implementation, the number of rows and columns will always be optimised according to two factors: (a) the number of charts, and (b) the aspect ratio of the display. 
 
-In large datasets, like example 2, it is helpful for the user to zoom in (spreading fingers) and pan the data. (This will become more useful once drilling down is available).
-
 ## Technical Implementation
 
 As is standard, the data (currently mock) runs through a [D3 layout function](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartLayout.js) to prepare it for our D3 component. Note that the layout function 
