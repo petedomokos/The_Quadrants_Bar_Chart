@@ -18,13 +18,17 @@ Clone and run the code to see an example of a sports rehabilitation tracker for 
 
 #### Bar ordering
 
-The highest bars, representing the measures that going the best, are always towards the centre of the overall square. This make it easier to see the shape of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
+The highest bars, representing the best values, are always towards the centre of the overall square. This make it easier to see the shape of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
 
 In our sports rehabilitation example, whereas an executive (or manager) may want to just know the overall shape for all injured players, a coach or physio would be more interested in the specific bars.
 
 #### Drilling Down
 
 User can select a quadrant, and it will enlarge. It is not yet possible to see info on bars or to drill down into bars.
+
+#### Zooming and Panning
+
+In large datasets, like example 2, it is helpful for the user to zoom in (spreading fingers) and pan the data. (This will become more useful once drilling down is available).
 
 ## Technical Implementation
 
@@ -35,6 +39,8 @@ D3 runs on an svg element that is rendered within a [React component](https://gi
 
 The [D3 component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartComponent.js) uses inner functions rather than classes, because this is more consistent with the implementation of D3 itself, allowing
 for seamless integration of these functions within standard D3 chaining.
+
+There is currently no React redux, context, or hooks used for state management and common tasks (eg container resize), these changes are coming soon. 
 
 
 
