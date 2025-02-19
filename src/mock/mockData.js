@@ -164,7 +164,7 @@ const createMockDatum = (datapointIndex, categories=[], measures=[]) => {
   const randGenerator = randomNormal(meanOfScore, stdDevOfScore);
   return { 
     key:`datapoint-${datapointIndex}`,
-    title:`Datapoint Set ${datapointIndex + 1}`,
+    title:`Datapoint ${datapointIndex + 1}`,
     categoriesData:range(4).map(categoryIndex => {
       const category = categories[categoryIndex];
       const categoryKey = `datapoint-${datapointIndex}-category-${categoryIndex}`;

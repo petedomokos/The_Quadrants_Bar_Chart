@@ -45,6 +45,7 @@ const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
   const [sizes, setSizes] = useState(null);
   const [selectedQuadrantIndex, setSelectedQuadrantIndex] = useState(null);
   const [headerExtended, setHeaderExtended] = useState(false);
+  const [zoomState, setZoomState] = useState(d3.zoomIdentity)
 
   const chartMargin = (width, height) => ({ left:width * 0.1, right:width * 0.1, top:height * 0.1, bottom:height * 0.1 });
 
@@ -59,6 +60,7 @@ const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
   useEffect(() => {
     setChart(() => quadrantsBarChart());
   },[])
+
   //sizes
   useEffect(() => {
     const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.datapoints.length, CONTAINER_MARGIN, chartMargin);
@@ -75,20 +77,10 @@ const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
         .sizes(sizes)
         .selectedQuadrantIndex(selectedQuadrantIndex)
         .setSelectedQuadrantIndex(setSelectedQuadrantIndex)
-
-    //zoom
-    const handleZoom = e => {
-      d3.select(zoomGRef.current).attr("transform", e.transform)
-    }
-    const zoom = d3.zoom()
-      .scaleExtent([1, 100])
-      .translateExtent([[0, 0], [sizes.containerWidth, sizes.containerHeight]])
-      .on("zoom", handleZoom)
-
-    const svg = d3.select(containerRef.current).call(zoom)
+        .zoomState(zoomState)
 
     //call chart
-    const visContentsG = svg.select("svg").selectAll("g.vis-contents")
+    const visContentsG = d3.select(containerRef.current).selectAll("g.vis-contents")
       .attr("transform", `translate(${sizes.containerMargin.left}, ${sizes.containerMargin.top})`)
 
     const chartG = visContentsG.selectAll("g.chart").data(processedDatapoints, d => d.key);
@@ -101,10 +93,26 @@ const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
         .call(chart)
 
     chartG.exit().call(remove)
-  //@todo - this ueff has a dependency on data, so really it should be in array below,
-  //but its not because we dont want datapoints.length to trigger an update as it will be 
-  //triggered after sizes has changed, not before. 
-  }, [chart, sizes, selectedQuadrantIndex, headerExtended, data.key])
+    //@todo - this ueff has a dependency on data, so really it should be in array below,
+    //but its not because we dont want datapoints.length to trigger an update as it will be 
+    //triggered after sizes has changed, not before. 
+  }, [chart, sizes, selectedQuadrantIndex, headerExtended, data.key, zoomState])
+
+  //zoom
+  useEffect(() => {
+    if(!sizes){ return; }
+    const handleZoom = e => {
+      d3.select(zoomGRef.current).attr("transform", e.transform);
+      setZoomState(e.transform);
+    }
+
+    const zoom = d3.zoom()
+      .scaleExtent([1, 100])
+      .translateExtent([[0, 0], [sizes.containerWidth, sizes.containerHeight]])
+      .on("zoom", handleZoom)
+
+    d3.select(containerRef.current).call(zoom)
+  },[sizes])
   
 
   useEffect(() => {

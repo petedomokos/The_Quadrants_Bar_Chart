@@ -45,28 +45,25 @@ export default function quadrantsBarChart() {
     }
 
     //settings
+    let zoomState = d3.zoomIdentity;
     let withQuadrantTitles;
     let withBarLabels;
+    let shouldShowTitle;
 
     function updateDimns(){
         const maxContentsWidth = width - margin.left - margin.right;
         const maxContentsHeight = height - margin.top - margin.bottom;
-        //set chartTitleheight to reduce down to a min
-        chartTitleHeight = d3.max([18, maxContentsHeight * 0.1]);
-        quadrantTitleHeight = 20;
-        withQuadrantTitles = true;
+        //next - pass xoom state thorugyh and use it for calculating sizes
+        chartTitleHeight = maxContentsHeight * 0.15;// d3.max([18, maxContentsHeight * 0.1]);
+        quadrantTitleHeight = 0;
+        withQuadrantTitles = false;
         withBarLabels = true;
-        if(maxContentsWidth < 100 || maxContentsHeight < 120){
-            //remove quad labels
-            withQuadrantTitles = false;
-            quadrantTitleHeight = 0;
+        shouldShowTitle = false;
+        if(chartTitleHeight * zoomState.k > 10){
+            shouldShowTitle = true;
         }
         if(maxContentsWidth < 40 || maxContentsHeight < 70){
-            chartTitleHeight = 16;
             withBarLabels = false;
-        }
-        if(maxContentsWidth < 25 || maxContentsHeight < 40){
-            chartTitleHeight = 0;
         }
 
         //contentsheight includes space for quad titles, whereas contenstWidth doesnt
@@ -125,9 +122,8 @@ export default function quadrantsBarChart() {
             chartTitleG
                 .append("text")
                     .attr("class", "primary")
-                        .attr("text-anchor", "middle")
                         .attr("dominant-baseline", "central")
-                        .attr("opacity", 0.55)
+                        .attr("opacity", 0)
                         .attr("stroke-width", 0.1);
 
             //g that handles scaling when selections made
@@ -151,12 +147,15 @@ export default function quadrantsBarChart() {
             const contentsG = container.select("g.contents")
                 .attr("transform", `translate(${margin.left + extraHorizMargin}, ${margin.top + extraVertMargin})`)
 
-            //chart title
             const chartTitleG = contentsG.select("g.chart-title");
             chartTitleG.select("text.primary")
-                .attr("transform", `translate(${contentsWidth/2}, ${chartTitleHeight/2})`)
+                .attr("transform", `translate(0, ${chartTitleHeight/2})`)
                 .attr("font-size", styles.chart.title.fontSize)
                 .text(data.title || "")
+                    .transition()
+                    .duration(500)
+                        .attr("opacity", shouldShowTitle ? 0.55 : 0)
+
 
             //Chart contents
             const chartContentsG = contentsG.select("g.chart-contents")
@@ -470,6 +469,11 @@ export default function quadrantsBarChart() {
     chart.setSelectedQuadrantIndex = function (func) {
         if (!arguments.length) { return setSelectedQuadrantIndex; }
         setSelectedQuadrantIndex = func;
+        return chart;
+    };
+    chart.zoomState = function (value) {
+        if (!arguments.length) { return zoomState; }
+        zoomState = value;
         return chart;
     };
     return chart;
