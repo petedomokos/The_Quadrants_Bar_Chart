@@ -2,9 +2,19 @@ import React, { useState, useEffect, useRef } from 'react'
 import * as d3 from 'd3';
 import { quadrantsBarChartLayout } from './quadrantsBarChartLayout';
 import quadrantsBarChart from "./quadrantsBarChartComponent";
+import quadrantsBarChartKey from "./quadrantsBarChartKeyComponent";
 import { remove, fadeIn } from '../helpers/domHelpers';
 
 const CONTAINER_MARGIN = { left:10, right:10, top:10, bottom:40 };
+const TRANSITION_OUT = { 
+  duration:800,
+  delay: 50
+}
+
+const TRANSITION_IN = { 
+  duration: 500, 
+  delay:TRANSITION_OUT.delay + TRANSITION_OUT.duration + 200 
+}
 
 const calcNrColsAndRows = (containerWidth, containerHeight, n) => {
   //aspect ratio, a
@@ -42,10 +52,13 @@ const calculateChartSizesAndGridLayout = (container, nrItems, _containerMargin={
 const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
   //local state
   const [chart, setChart] = useState(null);
+  const [chartKey, setChartKey] = useState(null);
+  const [chartKeySmallScreen, setChartKeySmallScreen] = useState(null);
   const [sizes, setSizes] = useState(null);
   const [selectedQuadrantIndex, setSelectedQuadrantIndex] = useState(null);
+  const [selectedChartKey, setSelectedChartKey] = useState(null);
   const [headerExtended, setHeaderExtended] = useState(false);
-  const [zoomState, setZoomState] = useState(d3.zoomIdentity)
+  const [zoomState, setZoomState] = useState(d3.zoomIdentity);
 
   const chartMargin = (width, height) => ({ left:width * 0.1, right:width * 0.1, top:height * 0.1, bottom:height * 0.1 });
 
@@ -55,17 +68,54 @@ const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
 
   const containerRef = useRef(null);
   const zoomGRef = useRef(null);
-  
+  const chartKeyRef = useRef(null);
+  const chartKeySmallScreenRef = useRef(null);
+  //store the actual zoom function so we can access its methods to get/set the transform
+  const zoomRef = useRef(null);
+
   //chart
   useEffect(() => {
     setChart(() => quadrantsBarChart());
+    setChartKey(() => quadrantsBarChartKey());
+    setChartKeySmallScreen(() => quadrantsBarChartKey());
   },[])
 
   //sizes
   useEffect(() => {
     const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.datapoints.length, CONTAINER_MARGIN, chartMargin);
-    setSizes(chartSizes)
+    setSizes(chartSizes);
   },[data.datapoints.length])
+
+  //change the overall viz dataset (not just the datapoints)
+  useEffect(() => {
+    setTimeout(() => {
+      setSelectedQuadrantIndex(null);
+      setSelectedChartKey("");
+      if(zoomRef.current){ d3.select(containerRef.current).call(zoomRef.current.transform, d3.zoomIdentity); }
+      setZoomState(d3.zoomIdentity);
+    }, TRANSITION_OUT.delay + TRANSITION_OUT.duration)
+  },[data.key])
+
+  //render chartkey
+  useEffect(() => {
+    if(!chartKey){ return; }
+    const chartKeyData = data.categories;
+    //call key
+    d3.select(chartKeyRef.current)
+      ?.datum(chartKeyData)
+      .call(chartKey
+        .sizes({ width: 240, height: 140, margin:{ left:20, right: 20, top: 20, bottom:20 }})
+        .selectedQuadrantIndex(selectedQuadrantIndex)
+        .setSelectedQuadrantIndex(setSelectedQuadrantIndex));
+
+    d3.select(chartKeySmallScreenRef.current)
+      ?.datum(chartKeyData)
+      .call(chartKeySmallScreen
+        .sizes({ width: 190, height: 100, margin:{ left:10, right: 20, top: 20, bottom:20 }})
+        .selectedQuadrantIndex(selectedQuadrantIndex)
+        .setSelectedQuadrantIndex(setSelectedQuadrantIndex));
+
+  }, [chartKey, chartKeySmallScreen, selectedQuadrantIndex, data.categories])
 
   //render chart
   useEffect(() => {
@@ -76,7 +126,8 @@ const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
     chart
         .sizes(sizes)
         .selectedQuadrantIndex(selectedQuadrantIndex)
-        .setSelectedQuadrantIndex(setSelectedQuadrantIndex)
+        .selectedChartKey(selectedChartKey)
+        .setSelectedChartKey(setSelectedChartKey)
         .zoomState(zoomState)
 
     //call chart
@@ -87,75 +138,96 @@ const QuadrantsBarChartVisual = ({ data={ datapoints:[] } }) => {
     chartG.enter()
       .append("g")
         .attr("class", "chart")
-        .call(fadeIn, { transition:{ duration: 500, delay:500 }})
+        .attr("id", d => `chart-${d.key}`)
+        .call(fadeIn, { transition:TRANSITION_IN})
         .merge(chartG)
         .attr("transform", (d,i) => `translate(${d.colNr * sizes.width},${d.rowNr * sizes.height})`)
         .call(chart)
 
-    chartG.exit().call(remove)
-    //@todo - this ueff has a dependency on data, so really it should be in array below,
-    //but its not because we dont want datapoints.length to trigger an update as it will be 
-    //triggered after sizes has changed, not before. 
-  }, [chart, sizes, selectedQuadrantIndex, headerExtended, data.key, zoomState])
+    chartG.exit().call(remove, { transition:TRANSITION_OUT})
+  }, [chart, sizes, headerExtended])
+
+  //selections
+  useEffect(() => {
+    //settings
+    if(!chart){ return; }
+    chart
+        .selectedQuadrantIndex(selectedQuadrantIndex)
+        .selectedChartKey(selectedChartKey)
+        .setSelectedChartKey(setSelectedChartKey)
+
+    //call chart
+    d3.select(containerRef.current).selectAll("g.chart").call(chart)
+  }, [chart, selectedQuadrantIndex, selectedChartKey, headerExtended])
 
   //zoom
   useEffect(() => {
     if(!sizes){ return; }
-    const handleZoom = e => {
-      d3.select(zoomGRef.current).attr("transform", e.transform);
-      setZoomState(e.transform);
+    if(!zoomRef.current){
+      zoomRef.current = d3.zoom();
     }
-
-    const zoom = d3.zoom()
+    zoomRef.current
       .scaleExtent([1, 100])
       .translateExtent([[0, 0], [sizes.containerWidth, sizes.containerHeight]])
-      .on("zoom", handleZoom)
+      .on("zoom", e => { setZoomState(e.transform); })
 
-    d3.select(containerRef.current).call(zoom)
-  },[sizes])
-  
+    //call zoom
+    d3.select(containerRef.current).call(zoomRef.current);
+
+    //update zoomstate in the dom
+    d3.select(zoomGRef.current).attr("transform", zoomState);
+    //pass zoomstate change onto component for other adjustments
+    chart.zoomState(zoomState, true)
+  },[chart, sizes, zoomState])
 
   useEffect(() => {
     let resizeObserver = new ResizeObserver(() => { 
       const chartSizes = calculateChartSizesAndGridLayout(containerRef.current, data.datapoints.length, CONTAINER_MARGIN, chartMargin);
       setSizes(chartSizes);
     }); 
-    
     resizeObserver.observe(containerRef.current);
   }, [data.datapoints.length]);
 
   return (
     <div className="viz-root">
       <div className={`viz-header ${headerExtended ? "extended" : ""}`}>
-        <div className="title-and-description">
-          <div className="viz-title">
-            {data.title?.map((line, i) => 
-              <div className="title-line" key={`title-line-${i}`}>{line}</div> )
-            }
+        <div className="viz-overview">
+          <div className="title-and-description">
+            <div className="viz-title">
+              {data.title?.map((line, i) => 
+                <div className="title-line" key={`title-line-${i}`}>{line}</div> )
+              }
+            </div>
+            <div
+              className={`desc-btn ${headerExtended ? "to-hide" : "to-show"}`}
+              onClick={toggleHeaderExtended}
+            >
+              {`${headerExtended ? "Hide" : "Show"} Description`}
+            </div>
+            <div className={`viz-desc ${headerExtended ? "extended" : ""}`}>
+              {data.desc?.map((line, i) => 
+                <div className="desc-line" key={`desc-line-${i}`}>{line}</div> )
+              }
+            </div>
           </div>
-          <div
-            className={`desc-btn ${headerExtended ? "to-hide" : "to-show"}`}
-            onClick={toggleHeaderExtended}
-          >
-            {`${headerExtended ? "Hide" : "Show"} Description`}
-          </div>
-          <div className={`viz-desc ${headerExtended ? "extended" : ""}`}>
-            {data.desc?.map((line, i) => 
-              <div className="desc-line" key={`desc-line-${i}`}>{line}</div> )
-            }
+          <div className="viz-info">
+              {data.info && 
+                <div className="visual-name">
+                  <div className="label">{data.info.label}</div>
+                  <div className="name">{data.info.name}</div>
+                </div>
+              }
+              <div className="key key-sm-only">
+                <svg ref={chartKeySmallScreenRef}></svg>
+              </div>
           </div>
         </div>
-        <div className="chart-info">
-          {data.info && 
-            <div className="visual-name">
-              <div className="label">{data.info.label}</div>
-              <div className="name">{data.info.name}</div>
-            </div>
-          }
+        <div className="key key-above-sm">
+          <svg ref={chartKeyRef}></svg>
         </div>
       </div>
       <div className={`viz-container ${headerExtended ? "with-extended-header" : ""}`} ref={containerRef}>
-        <svg width="100%" height="100%">
+        <svg className="viz" width="100%" height="100%">
           <g ref={zoomGRef}>
             <g className="vis-contents"></g>
           </g>

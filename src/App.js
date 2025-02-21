@@ -14,10 +14,8 @@ function App() {
   const data = selectedExample === 'mock-dataset-500' ? createMockDataForVisuals(500) : getRehabDataForVisuals(24);
 
   const handleSelectExample = useCallback(key => {
-    //remove existing
     setSelectedExample(key)
-
-  }, [selectedExample]);
+  }, []);
   return (
     <div className="app">
       <Header menuItems={exampleItems} selected={selectedExample} onSelect={handleSelectExample} />

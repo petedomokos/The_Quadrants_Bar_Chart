@@ -15,7 +15,8 @@ export default function quadrantsBarChart() {
 
     let chartTitleHeight;
 
-    let axesStrokeWidth;
+    let gapBetweenQuadrants;
+    let zoomedGapBetweenQuadrants;
     let quadrantWidth;
     let quadrantHeight;
     let quadrantTitleHeight;
@@ -47,7 +48,7 @@ export default function quadrantsBarChart() {
     //settings
     let zoomState = d3.zoomIdentity;
     let withQuadrantTitles;
-    let withBarLabels;
+    //let withBarLabels;
     let shouldShowTitle;
 
     function updateDimns(){
@@ -57,13 +58,13 @@ export default function quadrantsBarChart() {
         chartTitleHeight = maxContentsHeight * 0.15;// d3.max([18, maxContentsHeight * 0.1]);
         quadrantTitleHeight = 0;
         withQuadrantTitles = false;
-        withBarLabels = true;
+        //withBarLabels = true;
         shouldShowTitle = false;
         if(chartTitleHeight * zoomState.k > 10){
             shouldShowTitle = true;
         }
         if(maxContentsWidth < 40 || maxContentsHeight < 70){
-            withBarLabels = false;
+            //withBarLabels = false;
         }
 
         //contentsheight includes space for quad titles, whereas contenstWidth doesnt
@@ -75,10 +76,16 @@ export default function quadrantsBarChart() {
         extraHorizMargin = extraHorizSpace/2;
         extraVertMargin = extraVertSpace/2;
 
-        axesStrokeWidth = d3.min([10, contentsWidth * 0.01]);
-        quadrantWidth = (contentsWidth - axesStrokeWidth)/2;
+        gapBetweenQuadrants = d3.min([10, contentsWidth * 0.005]);
+        //keep the gap between quadrants under some control
+        const maxGapBetweenQuadrants = gapBetweenQuadrants * 5;
+        //note - the zoomed gap is the one displayed, but it doesnt affect any other calculations, so it can adjust with zoom
+        //and not affect performance
+        zoomedGapBetweenQuadrants = d3.min([maxGapBetweenQuadrants, gapBetweenQuadrants * zoomState.k ** 0.7])
+
+        quadrantWidth = (contentsWidth - gapBetweenQuadrants)/2;
         //quadrant title is part of the quadrant, whereas chart title is not, so we subtract it
-        quadrantHeight = (contentsHeight - chartTitleHeight - axesStrokeWidth)/2;
+        quadrantHeight = (contentsHeight - chartTitleHeight - gapBetweenQuadrants)/2;
         //Each bar area works out as a square because of the way dimns are done above
         barsAreaWidth = quadrantWidth;
         barsAreaHeight = quadrantHeight - quadrantTitleHeight;
@@ -92,8 +99,10 @@ export default function quadrantsBarChart() {
 
     //state
     let selectedQuadrantIndex = null;
+    let selectedChartKey = "";
     //handlers
-    let setSelectedQuadrantIndex = () => {};
+    let setSelectedChartKey = () => {};
+    let updateZoom;
 
     function chart(selection) {
         updateDimns();
@@ -127,22 +136,17 @@ export default function quadrantsBarChart() {
                         .attr("stroke-width", 0.1);
 
             //g that handles scaling when selections made
-            chartContentsG.append("g").attr("class", "scale");
+            chartContentsG.append("g").attr("class", "scale").attr("transform", "scale(1)");
         }
 
-        function update(containerElement, data, settings={}){
+        function update(containerElement, data, options={}){
             //'this' is the container
             const container = d3.select(containerElement);
             //bg
             container.select("rect.chart-bg")
                 .attr("width", `${width}px`)
                 .attr("height", `${height}px`)
-                .attr("cursor", isNumber(selectedQuadrantIndex) ? "pointer" : null)
-                .on("click", e => {
-                    if(isNumber(selectedQuadrantIndex)){
-                        setSelectedQuadrantIndex("");
-                    }
-                });
+                .attr("cursor", isNumber(selectedQuadrantIndex) ? "pointer" : null);
 
             const contentsG = container.select("g.contents")
                 .attr("transform", `translate(${margin.left + extraHorizMargin}, ${margin.top + extraVertMargin})`)
@@ -170,12 +174,13 @@ export default function quadrantsBarChart() {
                 selectedQuadrantIndex === 2 ? `${contentsWidth} 0` :
                 `0 0`;
 
+            const chartTransform = `scale(${isNumber(selectedQuadrantIndex) ? 0.5 : 1})`;
             scaleG
                 .transition()
                 .delay(isNumber(selectedQuadrantIndex) ? 0 : 75)
                 .duration(500)
-                    .attr("transform", `scale(${isNumber(selectedQuadrantIndex) ? 0.5 : 1})`)
-                    .attr("transform-origin", chartTransformOrigin);
+                    .attr("transform", chartTransform)
+                    .attr("transform-origin", chartTransformOrigin)
 
             //Quadrants
             const quadrantContainerG = scaleG.selectAll("g.quadrant-container").data(data.quadrantsData, d => d.key)
@@ -218,15 +223,7 @@ export default function quadrantsBarChart() {
                         barsAreaG.append("g").attr("class", "bars");
                     })
                     .merge(quadrantContainerG)
-                    .attr("transform", (d,i) => `translate(${(i === 0 || i === 2) ? 0 : quadrantWidth + axesStrokeWidth}, ${(i === 0 || i === 1) ? 0 : quadrantHeight + axesStrokeWidth})`)
-                    .on("click", function(e,d){
-                        e.stopPropagation();
-                        if(selectedQuadrantIndex !== d.i){
-                            setSelectedQuadrantIndex(d.i)
-                        }else{
-                            setSelectedQuadrantIndex("")
-                        }
-                    })
+                    .attr("transform", (d,i) => `translate(${(i === 0 || i === 2) ? 0 : quadrantWidth + zoomedGapBetweenQuadrants}, ${(i === 0 || i === 1) ? 0 : quadrantHeight + zoomedGapBetweenQuadrants})`)
                     .each(function(quadD,i){
                         const quadrantContainerG = d3.select(this);
                         //make sure bar labels etc are on top of DOM
@@ -272,7 +269,7 @@ export default function quadrantsBarChart() {
                                 .duration(500)
                                     .attr("opacity", shouldShowSelectedQuadrantTitle ? 0.5 : 0)
                                         .on("end", function(){ d3.select(this).attr("display", shouldShowSelectedQuadrantTitle ? null : "none")})
-                        
+
                         const barAreaShiftVert = i === 0 || i === 1 ? quadrantTitleHeight : 0;
                         const barsAreaG = quadrantG.select("g.bars-area")
                             .attr("transform", `translate(0, ${barAreaShiftVert})`);
@@ -290,15 +287,13 @@ export default function quadrantsBarChart() {
                         //bars
                         const nrBars = quadD.values.length;
                         const nrGaps = nrBars - 1;
-                        const potentialTotalSpaceForGaps = barsAreaWidth * 0.05;
-                        const potentialGapBetweenBars = potentialTotalSpaceForGaps / nrGaps;
                         //gap must not be as large as the axeswidth
-                        const gapBetweenBars = d3.min([axesStrokeWidth * 0.7, potentialGapBetweenBars]);
+                        const gapBetweenBars = gapBetweenQuadrants * 0.1;
                         const totalSpaceForBars = barsAreaWidth - gapBetweenBars * nrGaps;
                         const barWidth = totalSpaceForBars/nrBars;
-                        const barLabelWidth = 15;
-                        const barLabelHeight = 4;
-                        const horizLabelMargin = barWidth * 0.2;
+                        //const barLabelWidth = 15;
+                        //const barLabelHeight = 4;
+                        //const horizLabelMargin = barWidth * 0.2;
 
                         //@todo - base this showing on zoomScale * quadrantsWidth
                         const shouldShowBars = true;
@@ -329,7 +324,7 @@ export default function quadrantsBarChart() {
 
                                     barG.select("rect.bar")
                                         .transition()
-                                        .duration(500)
+                                        .duration(100)
                                             .attr("width", barWidth)
                                             .attr("height", barHeight)
                                             .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
@@ -448,6 +443,24 @@ export default function quadrantsBarChart() {
 
         }
 
+        updateZoom = function(){
+            updateDimns();
+            selection.each(function(data,i){
+                //hide/show title
+                d3.select(this).select("g.chart-title").select("text.primary")
+                    .transition()
+                    .duration(100)
+                        .attr("opacity", shouldShowTitle ? 0.55 : 0)
+                    
+                //add the extra gap between quadrants
+                //note - the order of the nodes in this selectAll is not reliable, so we use d.i not i
+                d3.select(this).selectAll("g.quadrant-container")
+                    .attr("transform", d => `translate(
+                        ${(d.i === 0 || d.i === 2) ? 0 : quadrantWidth + zoomedGapBetweenQuadrants}, 
+                        ${(d.i === 0 || d.i === 1) ? 0 : quadrantHeight + zoomedGapBetweenQuadrants})`)
+            })
+        }
+
         return selection;
     }
 
@@ -466,14 +479,21 @@ export default function quadrantsBarChart() {
         selectedQuadrantIndex = value;
         return chart;
     };
-    chart.setSelectedQuadrantIndex = function (func) {
-        if (!arguments.length) { return setSelectedQuadrantIndex; }
-        setSelectedQuadrantIndex = func;
+    chart.selectedChartKey = function (value) {
+        if (!arguments.length) { return selectedChartKey; }
+        selectedChartKey = value;
         return chart;
     };
-    chart.zoomState = function (value) {
+    chart.setSelectedChartKey = function (func) {
+        if (!arguments.length) { return setSelectedChartKey; }
+        setSelectedChartKey = func;
+        return chart;
+    };
+    chart.zoomState = function (value, shouldUpdateDom) {
         if (!arguments.length) { return zoomState; }
         zoomState = value;
+
+        if(shouldUpdateDom){ d3.selectAll(".chart").call(updateZoom) }
         return chart;
     };
     return chart;

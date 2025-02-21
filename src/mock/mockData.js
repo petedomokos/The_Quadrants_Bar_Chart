@@ -89,38 +89,42 @@ const valuesForSessionsPostInjury = {
 }
 
 const howItWorks = [
-  "Spread fingers to zoom in. Drag to pan. Click on a category to select/deselect. "
+  "Spread fingers to zoom. Drag to pan. Click on a quadrant in the key to select/deselect. "
 ]
 
 export const getRehabDataForVisuals = (nrSessions=24) => {
   const rehabData = {
+    key:"rehab-data",
     title:["Rehab Tracker of Post-Injury", "Training Sessions"],
     desc:[
-        "Shows player's journey towards being ready to perform, based on pre-injury indicators (standardised to 100%) across 4 categories.",
+        "Shows player's recovery from injury, based on pre-injury indicators (standardised to 100%) across 4 categories.",
         "When all bars are filled in 100%, it shows a perfect square which means the player is back to pre-injury levels.",
         ...howItWorks
     ],
     playerName:"James Stevens",
     measures:rehabMeasures,
-    datapoints:range(nrSessions).map(sessionIndex => createSessionData(sessionIndex))
+    categories:rehabCategories,
+    datapoints:range(nrSessions).map(sessionIndex => createSessionData(sessionIndex)),
   }
   return prepareRehabDataForVisuals(rehabData);
 }
 
 function prepareRehabDataForVisuals(rehabData){
-  const { title, desc, playerName, measures, datapoints } = rehabData;
+  const { key, title, desc, playerName, measures, categories, datapoints } = rehabData;
   return {
+    key,
     title,
     desc,
     info:{ label:"Player Name", name: playerName },
     measures,
+    categories:categories.map((c,i) => ({ key:c.key, title:c.name, i })),
     datapoints:datapoints.map(datapoint => ({
       ...datapoint,
       categoriesData:datapoint.categoriesData.map(datapointCategory => ({
         ...datapointCategory,
 
       }))
-    }))
+    })),
   }
 
 }
@@ -196,9 +200,10 @@ const createMockMeasures = (nrMeasuresInEachCategory=[5,5,5,5]) => {
 //{ preInjuryValue:27.2, key:"s1", name:"Max Speed", label:"MAX", categoryKey:"sharpness", range:[20, 35] },
 
 export function createMockDataForVisuals(nrDatapoints=100){
-  const categories = range(4).map(categoryIndex => ({ key:`category-${categoryIndex}`, title:`Category ${categoryIndex + 1}`}));
+  const categories = range(4).map((categoryIndex) => ({ i:categoryIndex, key:`category-${categoryIndex}`, title:`Category ${categoryIndex + 1}`}));
   const measures = createMockMeasures();
   return {
+    key:`mock-data-${nrDatapoints}`,
     title:[`${nrDatapoints} sets of mock datapoints displayed`],
     desc:[
       "Shows how each set of data compares against an ideal model. ",
@@ -206,7 +211,8 @@ export function createMockDataForVisuals(nrDatapoints=100){
       ...howItWorks
   ],
     measures,
-    datapoints:range(nrDatapoints).map(datapointIndex => createMockDatum(datapointIndex, categories, measures))
+    categories,
+    datapoints:range(nrDatapoints).map(datapointIndex => createMockDatum(datapointIndex, categories, measures)),
   };
 }
 
