@@ -18,23 +18,34 @@ Clone and run the code to see an example of a sports rehabilitation tracker for 
 
 #### Bar ordering
 
-The highest bars, representing the measures that going the best, are always towards the centre of the overall square. This make it easier to see the shape of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
+The highest bars, representing the best values, are always towards the centre of the overall square. This make it easier to see the shape of the overall progress, at the expense of the ability to track progress for a particular bar. User will soon be able to remove auto-ordering when they want to track several specific bars more than the overall progress.
 
 In our sports rehabilitation example, whereas an executive (or manager) may want to just know the overall shape for all injured players, a coach or physio would be more interested in the specific bars.
 
-#### Drilling Down
+#### Drilling down
 
 User can select a quadrant, and it will enlarge. It is not yet possible to see info on bars or to drill down into bars.
 
-## Technical Implementation
+#### Zooming and panning
 
-As is standard, the data (currently mock) runs through a [D3 layout function](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartLayout.js) to prepare it for our D3 component. Note that the layout function 
-is not yet implemented in the standard way using an inner function to allow chaining of settings, as there are not yet sufficient settings to justify this, although this will change as more functionality is added.
+In large datasets, like example 2, it is helpful for the user to zoom in (spreading fingers) and pan the data. (This will become more useful once drilling down is available).
+
+#### Grid display optimisation
+
+Its very important in dataviz that space is used effectively. In this implementation, the number of rows and columns will always be optimised according to two factors: (a) the number of charts, and (b) the aspect ratio of the display. 
+
+## Technical implementation
+
+This is React plus D3 project, developed on a chrome browser, and is responsive to all display sizes. However, it hasn't been tested on other browsers or mobile devices.
+
+The data (currently mock) runs through two preparation functions. The first prepares the data to be applied to generic visualisations. The second is a [D3 layout function](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartLayout.js) to prepare it for the D3 quadrantsBarChartComponent.
 
 D3 runs on an svg element that is rendered within a [React component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/QuadrantsBarChart.js).
 
-The [D3 component](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartComponent.js) uses inner functions rather than classes, because this is more consistent with the implementation of D3 itself, allowing
+The [D3 component (quadrantsBarChartComponent)](https://github.com/petedomokos/The_Quadrants_Bar_Chart/blob/master/src/quadrantsBarChart/quadrantsBarChartComponent.js) uses inner functions rather than classes, because this is more consistent with the implementation of D3 itself, allowing
 for seamless integration of these functions within standard D3 chaining.
+
+There is currently no React redux, context, or hooks used for state management and common tasks (eg container resize), these changes are coming soon. 
 
 
 
