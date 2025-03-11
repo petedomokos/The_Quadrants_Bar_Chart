@@ -164,13 +164,19 @@ export default function quadrantsBarChartKey() {
     }
 
     //api
-    chart.sizes = function (values) {
-        if (!arguments.length) { return { width, height, margin }; }
-        width = values.width || width;
-        height = values.height || height;
-        //@todo - add margin in, but this be on outside of each quadrant
-        margin = values.margin ? { ...margin, ...values.margin } : margin;
-
+    chart.width = function (value) {
+        if (!arguments.length) { return width }
+        width = value;
+        return chart;
+    };
+    chart.height = function (value) {
+        if (!arguments.length) { return height }
+        height = value;
+        return chart;
+    };
+    chart.margin = function (value) {
+        if (!arguments.length) { return margin }
+        margin = { ...margin, ...value };
         return chart;
     };
     chart.selectedQuadrantIndex = function (value) {

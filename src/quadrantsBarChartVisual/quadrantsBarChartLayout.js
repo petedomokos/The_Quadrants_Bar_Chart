@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { sortAscending, sortDescending } from '../helpers/ArrayHelpers';
 import { percentageScoreConverter } from '../helpers/dataHelpers';
 
@@ -11,7 +12,7 @@ const calcColNr = (i, nrCols) => i % nrCols;
 export const quadrantsBarChartLayout = (data, settings={}) => {
     const { measures, datapoints } = data;
     const { nrCols } = settings;
-    return datapoints.map((datapoint,i) => ({
+    const datapointsWithOrderedMeasures = datapoints.map((datapoint,i) => ({
         key:datapoint.key,
         title:datapoint.title,
         quadrantsData:datapoint.categoriesData.map((categoryData, j) => {
@@ -32,15 +33,41 @@ export const quadrantsBarChartLayout = (data, settings={}) => {
                     }
                 });
 
+            const orderedValues = j === 0 || j === 2 ? sortAscending(unorderedValues, v => v.value) : sortDescending(unorderedValues, v => v.value);
+
             return {
                 key:`quad-${j+1}`,
                 i:j,
                 ...categoryData,
-                values: j === 0 || j === 2 ? sortAscending(unorderedValues, v => v.value) : sortDescending(unorderedValues, v => v.value)
+                values: orderedValues
             }
         }),
         i,
         rowNr:calcRowNr(i, nrCols),
         colNr:calcColNr(i, nrCols)
-    }))
+    }));
+
+    const datapointsWithSummaryValues = datapointsWithOrderedMeasures.map(datapoint => {
+        //@todo - user rollup
+        const quadrantsWithSummaryValues = datapoint.quadrantsData.map(q => ({
+            ...q,
+            value:Math.round(d3.mean(q.values.map(v => v.value)))
+        }))
+        const datapointSummaryValue = d3.mean(quadrantsWithSummaryValues.map(q => q.value));
+        return {
+            ...datapoint,
+            quadrantsData:quadrantsWithSummaryValues,
+            value:Math.round(datapointSummaryValue)
+        }
+    });
+
+    const datapointsOrderedBySummaryValue = sortAscending(datapointsWithSummaryValues, v => v.value)
+        .map((d,i) => ({ ...d, position:i + 1 }));
+    
+    const datapointsWithSummaryValuesAndPosition = datapointsWithSummaryValues.map(d => ({ 
+        ...d, 
+        position:datapointsOrderedBySummaryValue.find(datapoint => datapoint.key === d.key).position
+    }));
+
+    return datapointsWithSummaryValuesAndPosition;
 }

@@ -1,4 +1,10 @@
+html, 
+body {
+  overflow:hidden;
+}
+
 .app {
+  height:100vh;
   text-align: center;
 }
 
@@ -20,6 +26,16 @@
     font-size: calc(5px + 1vmin);
   }
   */
+}
+
+.content {
+  height: calc(100% - 80px);
+  margin:0;
+  padding:0 2.5%;
+  background-color: #282c34;
+  @media only screen and (max-width: 990px) {
+    padding:0;
+  }
 }
 
 .app-header .vis-title {
@@ -60,21 +76,12 @@
   color:white;
 }
 
-.content {
-  min-height: calc(100vh - 50px);
-  padding:0 2.5%;
-  background-color: #282c34;
-  @media only screen and (max-width: 990px) {
-    padding:0;
-  }
-}
-
 .viz-root {
   width:100%;
-  height:calc(100vh - 80px - 40px);
+  height:100%;
   background:#F5F5F5;
   @media only screen and (max-width: 990px) {
-    height:calc(100vh - 60px);
+    height:100%;
   }
 }
 
@@ -107,24 +114,30 @@
 
 .viz-container {
   width:100%;
-  height:calc(100% - 150px);
+  height:calc(100% - 150px - 20px - 0px);
+  padding:10px 0;
   @media only screen and (max-width: 990px) {
-    height:calc(100% - 170px);
+    height:calc(100% - 170px - 20px - 0px);
   }
   @media only screen and (max-width: 768px) {
-    height:calc(100% - 120px);
+    height:calc(100% - 120px - 20px - 0px);
   }
   @media only screen and (max-width: 575px) {
-    height:calc(100% - 175px);
+    height:calc(100% - 175px - 20px - 0px);
   }
 }
 
 .viz-container.with-extended-header {
   width:100%;
-  height:calc(100% - 200px);
+  height:calc(100% - 200px - 20px - 0px);
   @media only screen and (max-width: 575px) {
-    height:calc(100% - 280px);;
+    height:calc(100% - 280px - 20px - 0px);
   }
+}
+
+.viz-inner-container {
+  width:100%;
+  height:100%;
 }
 
 .viz {

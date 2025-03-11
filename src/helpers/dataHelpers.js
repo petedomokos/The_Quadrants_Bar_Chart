@@ -12,7 +12,7 @@ export const percentageScoreConverter = (targetValue, options={}) => (value) => 
     const rangeSize = Math.abs(range[1] - range[0]);
     const direction = range[1] - range[0] >= 0 ? "increasing" : "decreasing";
     const quantityOfRangeAchieved = direction === "increasing" ? value - range[0] : range[1] - value;
-    const pc = ((quantityOfRangeAchieved/rangeSize) * 100).toFixed(dps);
+    const pc = Number(((quantityOfRangeAchieved/rangeSize) * 100).toFixed(dps));
     const lowerBound = allowLessThanZero && pc < 0 ? pc : 0;
     const upperBound = allowGreaterThan100 && pc > 100 ? pc : 100;
     return d3.min([upperBound, d3.max([lowerBound, pc])])

@@ -16,11 +16,12 @@ function App() {
   const handleSelectExample = useCallback(key => {
     setSelectedExample(key)
   }, []);
+
   return (
     <div className="app">
       <Header menuItems={exampleItems} selected={selectedExample} onSelect={handleSelectExample} />
       <div className="content">
-        <QuadrantsBarChartVisual data={data} settings={{ nrRows: 3 }}/>
+        <QuadrantsBarChartVisual data={data}/>
       </div>
     </div>
   );

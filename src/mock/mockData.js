@@ -89,7 +89,7 @@ const valuesForSessionsPostInjury = {
 }
 
 const howItWorks = [
-  "Spread fingers to zoom. Drag to pan. Click on a quadrant in the key to select/deselect. "
+  "Click chart to select. Click key to select quadrant. Spread fingers to zoom. Drag to pan."
 ]
 
 export const getRehabDataForVisuals = (nrSessions=24) => {

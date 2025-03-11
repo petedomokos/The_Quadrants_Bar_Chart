@@ -14,12 +14,17 @@ export default function quadrantsBarChart() {
     let contentsHeight;
 
     let chartTitleHeight;
+    let chartWidth;
+    let chartHeight;
 
     let gapBetweenQuadrants;
     let zoomedGapBetweenQuadrants;
     let quadrantWidth;
     let quadrantHeight;
     let quadrantTitleHeight;
+
+    let quadrantsSummaryWidth;
+    let quadrantsSummaryHeight;
 
     let barsAreaWidth;
     let barsAreaHeight;
@@ -30,6 +35,9 @@ export default function quadrantsBarChart() {
         chart:{
             title:{
                 fontSize:12
+            },
+            subtitle:{
+                fontSize:10
             }
         },
         quadrant:{
@@ -46,12 +54,20 @@ export default function quadrantsBarChart() {
     }
 
     //settings
-    let zoomState = d3.zoomIdentity;
+    let zoomState = { transform: d3.zoomIdentity };
     let withQuadrantTitles;
     //let withBarLabels;
+    let levelOfDetail;
     let shouldShowTitle;
+    let shouldShowSubtitle;
+    let barsAreClickable;
+    let shouldShowQuadrantsSummary;
+
+    let nrCharts;
 
     function updateDimns(){
+        scaleValue = value => value / zoomState.transform.k;
+
         const maxContentsWidth = width - margin.left - margin.right;
         const maxContentsHeight = height - margin.top - margin.bottom;
         //next - pass xoom state thorugyh and use it for calculating sizes
@@ -59,13 +75,17 @@ export default function quadrantsBarChart() {
         quadrantTitleHeight = 0;
         withQuadrantTitles = false;
         //withBarLabels = true;
-        shouldShowTitle = false;
-        if(chartTitleHeight * zoomState.k > 10){
-            shouldShowTitle = true;
+        levelOfDetail = 1;
+        if(chartTitleHeight * zoomState.transform.k > 10){
+            levelOfDetail = 2;
         }
-        if(maxContentsWidth < 40 || maxContentsHeight < 70){
-            //withBarLabels = false;
+        if(chartTitleHeight * zoomState.transform.k > 45){
+            levelOfDetail = 3;
         }
+        shouldShowTitle = levelOfDetail >= 2;
+        shouldShowSubtitle = levelOfDetail >= 3;
+        barsAreClickable = levelOfDetail >= 2;
+        shouldShowQuadrantsSummary = levelOfDetail >= 3;
 
         //contentsheight includes space for quad titles, whereas contenstWidth doesnt
         contentsWidth = d3.min([maxContentsWidth, maxContentsHeight - chartTitleHeight - 2 * quadrantTitleHeight]);
@@ -81,17 +101,23 @@ export default function quadrantsBarChart() {
         const maxGapBetweenQuadrants = gapBetweenQuadrants * 5;
         //note - the zoomed gap is the one displayed, but it doesnt affect any other calculations, so it can adjust with zoom
         //and not affect performance
-        zoomedGapBetweenQuadrants = d3.min([maxGapBetweenQuadrants, gapBetweenQuadrants * zoomState.k ** 0.7])
+        zoomedGapBetweenQuadrants = d3.min([maxGapBetweenQuadrants, gapBetweenQuadrants * zoomState.transform.k ** 0.7]);
 
+        quadrantsSummaryWidth = contentsWidth * 0.3;
+        quadrantsSummaryHeight = chartTitleHeight * 0.8;
+
+        chartWidth = contentsWidth;
+        chartHeight = contentsHeight - chartTitleHeight;
         quadrantWidth = (contentsWidth - gapBetweenQuadrants)/2;
         //quadrant title is part of the quadrant, whereas chart title is not, so we subtract it
-        quadrantHeight = (contentsHeight - chartTitleHeight - gapBetweenQuadrants)/2;
+        quadrantHeight = (chartHeight - gapBetweenQuadrants)/2;
         //Each bar area works out as a square because of the way dimns are done above
         barsAreaWidth = quadrantWidth;
         barsAreaHeight = quadrantHeight - quadrantTitleHeight;
 
         //styles that are based on dimns
-        styles.chart.title.fontSize = chartTitleHeight * 0.4;
+        styles.chart.title.fontSize = shouldShowSubtitle ? chartTitleHeight * 0.4 : chartTitleHeight * 0.55;
+        styles.chart.subtitle.fontSize = chartTitleHeight * 0.25;
         styles.quadrant.title.fontSize = quadrantHeight * 0.11;
         styles.quadrant.selectedTitle.fontSize = quadrantHeight * 0.11;
         styles.bar.fontSize = quadrantHeight * 0.09;
@@ -104,7 +130,11 @@ export default function quadrantsBarChart() {
     let setSelectedChartKey = () => {};
     let updateZoom;
 
+    //helper
+    let scaleValue;
+
     function chart(selection) {
+        nrCharts = selection.nodes().length;
         updateDimns();
 
         selection.each(function (data,i) {
@@ -119,10 +149,10 @@ export default function quadrantsBarChart() {
             //or just remove the init-update functions altogether
             //bg
             container.append("rect").attr("class", "chart-bg")
-                .attr("stroke", "none")
                 .attr("fill", "transparent");
 
             const contentsG = container.append("g").attr("class", "contents");
+
             //chart title and contents gs
             const chartTitleG = contentsG.append("g").attr("class", "chart-title");
             const chartContentsG = contentsG.append("g").attr("class", "chart-contents");
@@ -130,40 +160,128 @@ export default function quadrantsBarChart() {
             //title
             chartTitleG
                 .append("text")
-                    .attr("class", "primary")
-                        .attr("dominant-baseline", "central")
+                    .attr("class", "title")
+                        .attr("dominant-baseline", "hanging")
                         .attr("opacity", 0)
                         .attr("stroke-width", 0.1);
+                
+            chartTitleG
+                .append("text")
+                    .attr("class", "subtitle")
+                        .attr("opacity", 0)
+                        .attr("stroke-width", 0.1);
+                      
+            const quadrantsSummaryG = chartTitleG.append("g").attr("class", "quadrants-summary");
+            quadrantsSummaryG.append("rect")
+                .attr("class", "quadrants-summary-outline")
+                .attr("stroke", "grey")
+                .attr("stroke-width", scaleValue(0.1))
+                .attr("fill", "none");
+
+            quadrantsSummaryG.append("line").attr("class", "quadrants-summary-vertical-line quadrants-summary-outline");
+            quadrantsSummaryG.append("line").attr("class", "quadrants-summary-horizontal-line quadrants-summary-outline");
+            quadrantsSummaryG.selectAll("line")
+                .attr("stroke", "grey")
+                .attr("stroke-width", scaleValue(0.1));
+
+            //title-hitbox
+            chartTitleG.append("rect").attr("class", "chart-title-hitbox")
+                .attr("cursor", "pointer")
+                .attr("fill", "transparent");
+
 
             //g that handles scaling when selections made
             chartContentsG.append("g").attr("class", "scale").attr("transform", "scale(1)");
+
+            //chart-hitbox
+            chartContentsG.append("rect").attr("class", "chart-hitbox")
+                .attr("cursor", "pointer")
+                .attr("fill", "transparent");
+
         }
 
         function update(containerElement, data, options={}){
             //'this' is the container
             const container = d3.select(containerElement);
+            const anotherChartIsSelected = selectedChartKey && selectedChartKey !== data.key;
             //bg
             container.select("rect.chart-bg")
                 .attr("width", `${width}px`)
-                .attr("height", `${height}px`)
-                .attr("cursor", isNumber(selectedQuadrantIndex) ? "pointer" : null);
+                .attr("height", `${height}px`);
 
             const contentsG = container.select("g.contents")
                 .attr("transform", `translate(${margin.left + extraHorizMargin}, ${margin.top + extraVertMargin})`)
 
-            const chartTitleG = contentsG.select("g.chart-title");
-            chartTitleG.select("text.primary")
-                .attr("transform", `translate(0, ${chartTitleHeight/2})`)
-                .attr("font-size", styles.chart.title.fontSize)
-                .text(data.title || "")
-                    .transition()
-                    .duration(500)
-                        .attr("opacity", shouldShowTitle ? 0.55 : 0)
+            updateTitle.call(containerElement, data);
 
+            const quadrantsSummaryG = contentsG.select("g.chart-title").select("g.quadrants-summary");
+            quadrantsSummaryG
+                .transition()
+                .duration(100)
+                    .attr("transform", `translate(${contentsWidth + zoomedGapBetweenQuadrants - gapBetweenQuadrants - quadrantsSummaryWidth},0)`)
+                    .attr("opacity", shouldShowQuadrantsSummary ? 1 : 0);
+
+            const quadrantSummaryG = quadrantsSummaryG.selectAll("g.quadrant-summary").data(data.quadrantsData, q => q.key);
+            quadrantSummaryG.enter()
+                .append("g")
+                    .attr("class", "quadrant-summary")
+                    .each(function(){
+                        d3.select(this)
+                            .append("text")
+                                .attr("text-anchor", "middle")
+                                .attr("dominant-baseline", "central");
+                    })
+                    .merge(quadrantSummaryG)
+                    .attr("transform", (d,i) => `translate(${i === 0 || i === 2 ? 0 : quadrantsSummaryWidth/2},${i <= 1 ? 0 : quadrantsSummaryHeight/2})`)
+                    .each(function(summaryD){
+                        d3.select(this).select("text")
+                            .attr("x", quadrantsSummaryWidth/4)
+                            .attr("y", quadrantsSummaryHeight/4)
+                            .attr("font-size", scaleValue(9))
+                            .attr("stroke", anotherChartIsSelected ? "grey" : (summaryD.value < 50 ? "red" : BLUE))
+                            .attr("fill", anotherChartIsSelected ? "grey" : (summaryD.value < 50 ? "red" : BLUE))
+                            .attr("stroke-width", scaleValue(0.2))
+                            .text(`${summaryD.value}%`);
+                    })
+            
+            //outline and lines
+            quadrantsSummaryG.select("rect")
+                .attr("width", quadrantsSummaryWidth)
+                .attr("height", quadrantsSummaryHeight)
+                .attr("stroke-width", scaleValue(0.1));
+
+            quadrantsSummaryG.select("line.quadrants-summary-vertical-line")
+                .attr("x1", quadrantsSummaryWidth/2)
+                .attr("x2", quadrantsSummaryWidth/2)
+                .attr("y1", 0)
+                .attr("y2", quadrantsSummaryHeight)
+                .attr("stroke-width", scaleValue(0.1));
+
+            quadrantsSummaryG.select("line.quadrants-summary-horizontal-line")
+                .attr("x1", 0)
+                .attr("x2", quadrantsSummaryWidth)
+                .attr("y1", quadrantsSummaryHeight/2)
+                .attr("y2", quadrantsSummaryHeight/2)
+                .attr("stroke-width", scaleValue(0.1));
+                    
 
             //Chart contents
             const chartContentsG = contentsG.select("g.chart-contents")
                 .attr("transform", `translate(0, ${chartTitleHeight})`);
+
+            //hitboxes (title is always clickable, but chart itself is only clickable when bars are not)
+            contentsG.select("rect.chart-title-hitbox")
+                .attr("width", contentsWidth)
+                .attr("height", chartTitleHeight)
+                .on("click", () => setSelectedChartKey(data.key))
+                .attr("stroke-width", scaleValue(0.3))
+
+            chartContentsG.select("rect.chart-hitbox")
+                .attr("display", barsAreClickable ? "none" : null)
+                .attr("width", chartWidth)
+                .attr("height", chartHeight)
+                .attr("fill", "transparent")
+                .on("click", () => setSelectedChartKey(data.key))
 
             //scaling transforms
             const scaleG = chartContentsG.select("g.scale");
@@ -187,7 +305,6 @@ export default function quadrantsBarChart() {
             quadrantContainerG.enter()
                 .append("g")
                     .attr("class", (d,i) => `quadrant-container quandrant-container-${d.key}`)
-                    .attr("cursor", "pointer")
                     .each(function(d,i){
                         const quadrantContainerG = d3.select(this);
                         const quadrantG = quadrantContainerG.append("g").attr("class", "quadrant")
@@ -213,11 +330,12 @@ export default function quadrantsBarChart() {
 
 
                         const barsAreaG = quadrantG.append("g").attr("class", "bars-area");
+                        const anotherQuadrantIsSelected = isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i;
                         barsAreaG
                             .append("rect")
                                 .attr("class", "bars-area-bg")
-                                .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? GREY : BLUE)
-                                .attr("stroke-width", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? 0.1 : 0.3)
+                                .attr("stroke", anotherQuadrantIsSelected || anotherChartIsSelected ? GREY : BLUE)
+                                .attr("stroke-width", scaleValue(anotherQuadrantIsSelected || anotherChartIsSelected ? 0.1 : 0.3))
                                 .attr("fill", "transparent");
                          
                         barsAreaG.append("g").attr("class", "bars");
@@ -274,6 +392,8 @@ export default function quadrantsBarChart() {
                         const barsAreaG = quadrantG.select("g.bars-area")
                             .attr("transform", `translate(0, ${barAreaShiftVert})`);
 
+                        const anotherQuadrantIsSelected = isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== quadD.i;
+                        const anotherChartIsSelected = selectedChartKey && selectedChartKey !== data.key;
                         barsAreaG.select("rect.bars-area-bg")
                             .attr("width", barsAreaWidth)
                             .attr("height", barsAreaHeight);
@@ -281,8 +401,8 @@ export default function quadrantsBarChart() {
                         barsAreaG.select("rect.bars-area-bg")
                                 .transition()
                                 .duration(500)
-                                    .attr("stroke", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? GREY : BLUE)
-                                    .attr("stroke-width", isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== i ? 0.1 : 0.3)
+                                    .attr("stroke", anotherQuadrantIsSelected || anotherChartIsSelected ? GREY : BLUE)
+                                    .attr("stroke-width", scaleValue(anotherQuadrantIsSelected || anotherChartIsSelected ? 0.1 : 0.3))
 
                         //bars
                         const nrBars = quadD.values.length;
@@ -303,7 +423,8 @@ export default function quadrantsBarChart() {
                         const barG = barsG.selectAll("g.bar").data(barsData, d => d.key);
                         barG.enter()
                             .append("g")
-                                .attr("class", `bar`) 
+                                .attr("class", `bar`)
+                                .attr("cursor", "pointer")
                                 .each(function(barD,j){
                                     const barHeight = barD.calcBarHeight(barsAreaHeight);
                                     const barG = d3.select(this);
@@ -312,7 +433,7 @@ export default function quadrantsBarChart() {
                                             .attr("class", "bar")
                                                 .attr("width", barWidth)
                                                 .attr("height", barHeight)
-                                                .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === j ? BLUE : GREY);
+                                                .attr("fill", anotherQuadrantIsSelected || anotherChartIsSelected ? GREY : BLUE);
                                 })
                                 .merge(barG)
                                 .each(function(barD,j){
@@ -320,14 +441,17 @@ export default function quadrantsBarChart() {
                                     const barHeight = barD.calcBarHeight(barsAreaHeight);
                                     //no space between bars and outer edge of chart
                                     const barG = d3.select(this)
-                                        .attr("transform", `translate(${j * (barWidth + gapBetweenBars)},${i < 2 ? barsAreaHeight - barHeight : 0})`);
+                                        .attr("transform", `translate(${j * (barWidth + gapBetweenBars)},${i < 2 ? barsAreaHeight - barHeight : 0})`)
+                                        .on("click", function(){
+                                            console.log("bar clicked", barD)
+                                        });
 
                                     barG.select("rect.bar")
                                         .transition()
                                         .duration(100)
                                             .attr("width", barWidth)
                                             .attr("height", barHeight)
-                                            .attr("fill", !isNumber(selectedQuadrantIndex) || selectedQuadrantIndex === i ? BLUE : GREY);
+                                            .attr("fill", anotherQuadrantIsSelected || anotherChartIsSelected ? GREY : BLUE);
 
                                     //labels
                                     /*
@@ -389,75 +513,82 @@ export default function quadrantsBarChart() {
 
                         barG.exit().call(remove);
 
-                        /*
-                        //@todo - use this outline path option for larger dataset on screen"
-                        const outlineData = shouldShowBars ? [] : [quadD.values];
-                        const outlineG = barsG.selectAll("g.outline").data(outlineData)
-                        outlineG.enter()
-                            .append("g")
-                                .attr("class", "outline")
-                                .each(function(values){
-                                    d3.select(this).append("path")
-                                        .attr("stroke", "red")
-                                        .attr("stroke-width", 0.4)
-                                        .attr("fill", "none")
-                                })
-                                .merge(outlineG)
-                                //.attr("transform", `translate(0, ${quadrantHeight})`)
-                                .each(function(values){
-                                    d3.select(this).select("path")
-                                        .attr("d", quadrantPathD(values, i, barWidth, barsAreaHeight, gapBetweenBars))
-                                })
-
-                        outlineG.exit().call(remove);
-                        */
-
                     })
             
             quadrantContainerG.exit().call(remove);
 
-            /*
-            //@todo - use this path option for larger dataset on screen"
+            //handlers and helpers
+        }
 
-            function quadrantPathD(values, quadIndex, barWidth, barsAreaHeight, gapBetweenBars){
-                const barsOutline = values
-                    .map((v,k) => {
-                        if(quadIndex <= 1){
-                            //only draw 2nd vert line for last bar
-                            if(k < values.length - 1){ return `v ${-v.calcBarHeight(barsAreaHeight)} h ${barWidth + gapBetweenBars} m 0 ${v.calcBarHeight(barsAreaHeight)}` }
-                            return `v ${-v.calcBarHeight(barsAreaHeight)} h ${barWidth} v ${v.calcBarHeight(barsAreaHeight)}`
-                        }else{
-                            //only draw 2nd vert line for last bar
-                            if(k < values.length - 1){ return `v ${v.calcBarHeight(barsAreaHeight)} h ${barWidth + gapBetweenBars} m 0 ${-v.calcBarHeight(barsAreaHeight)}` }
-                            return `v ${v.calcBarHeight(barsAreaHeight)} h ${barWidth} v ${-v.calcBarHeight(barsAreaHeight)}`
-                        }
-                    })
-                    .reduce((str1, str2) => `${str1}${str2}`)
+        function updateTitle(data){
+            const titleG = d3.select(this).select("g.chart-title");
+            titleG.select("text.title")
+                .transition()
+                .duration(100)
+                    .attr("opacity", shouldShowTitle ? 0.55 : 0)
+                    .attr("font-size", styles.chart.title.fontSize)
+                    .text(data.title || "");
 
-                if(quadIndex <= 1){
-                    return `M 0 ${barsAreaHeight} ${barsOutline} h ${-values.length * (barWidth) + -(values.length - 1) * gapBetweenBars} z`
-                }
-                return `M 0 0 ${barsOutline} h ${-values.length * (barWidth) + -(values.length - 1) * gapBetweenBars} z`
-            }
-            */
+
+            titleG.select("text.subtitle")
+                .transition()
+                .duration(100)
+                    .attr("transform", `translate(0, ${chartTitleHeight * 0.8})`)
+                    .attr("opacity", shouldShowSubtitle ? 0.45 : 0)
+                    .attr("font-size", styles.chart.subtitle.fontSize)
+                    .text(data.subtitle || (data.position ? `Position ${data.position} / ${nrCharts}` : ""));
 
         }
 
         updateZoom = function(){
             updateDimns();
             selection.each(function(data,i){
+                const chartG = d3.select(this);
+                const anotherChartIsSelected = selectedChartKey && selectedChartKey !== data.key;
                 //hide/show title
-                d3.select(this).select("g.chart-title").select("text.primary")
+                updateTitle.call(this, data);
+                const quadrantsSummaryG = chartG.select("g.chart-title").select("g.quadrants-summary");
+                quadrantsSummaryG
                     .transition()
                     .duration(100)
-                        .attr("opacity", shouldShowTitle ? 0.55 : 0)
+                        .attr("transform", `translate(${contentsWidth + zoomedGapBetweenQuadrants - gapBetweenQuadrants - quadrantsSummaryWidth},0)`)
+                        .attr("opacity", shouldShowQuadrantsSummary ? 1 : 0);
+
+                quadrantsSummaryG.selectAll("text")
+                    .transition()
+                    .duration(100)
+                        .attr("font-size", scaleValue(9))
+                        .attr("stroke-width", scaleValue(0.2))
+                        .attr("stroke", summaryD => anotherChartIsSelected ? "grey" : (summaryD.value < 50 ? "red" : BLUE))
+                        .attr("fill", summaryD => anotherChartIsSelected ? "grey" : (summaryD.value < 50 ? "red" : BLUE));
                     
-                //add the extra gap between quadrants
+
+                quadrantsSummaryG.selectAll(".quadrants-summary-outline")
+                    .attr("stroke-width", scaleValue(0.1))
+
+                chartG.select("rect.chart-hitbox")
+                    .attr("display", barsAreClickable ? "none" : null);
+
+                chartG.selectAll("rect.bars-area-bg")
+                    .attr("stroke-width", scaleValue(anotherChartIsSelected ? 0.1 : 0.3))
+                    .transition()
+                    .duration(200)
+                        .attr("stroke", anotherChartIsSelected ? GREY : BLUE)
+                
+                //add the extra gap between quadrants, and colour the bars correctly
                 //note - the order of the nodes in this selectAll is not reliable, so we use d.i not i
-                d3.select(this).selectAll("g.quadrant-container")
+                chartG.selectAll("g.quadrant-container")
                     .attr("transform", d => `translate(
                         ${(d.i === 0 || d.i === 2) ? 0 : quadrantWidth + zoomedGapBetweenQuadrants}, 
                         ${(d.i === 0 || d.i === 1) ? 0 : quadrantHeight + zoomedGapBetweenQuadrants})`)
+                    .each(function(quadD,j){
+                        const anotherQuadrantIsSelected = isNumber(selectedQuadrantIndex) && selectedQuadrantIndex !== quadD.i;
+                        d3.select(this).selectAll("rect.bar")
+                            .transition()
+                            .duration(200)
+                                .attr("fill", anotherQuadrantIsSelected || anotherChartIsSelected ? GREY : BLUE)
+                    });
+
             })
         }
 
@@ -465,13 +596,19 @@ export default function quadrantsBarChart() {
     }
 
     //api
-    chart.sizes = function (values) {
-        if (!arguments.length) { return { width, height, margin }; }
-        width = values.width || width;
-        height = values.height || height;
-        //@todo - add margin in, but this be on outside of each quadrant
-        margin = values.margin ? { ...margin, ...values.margin } : margin;
-
+    chart.width = function (value) {
+        if (!arguments.length) { return width }
+        width = value;
+        return chart;
+    };
+    chart.height = function (value) {
+        if (!arguments.length) { return height }
+        height = value;
+        return chart;
+    };
+    chart.margin = function (value) {
+        if (!arguments.length) { return margin }
+        margin = { ...margin, ...value };
         return chart;
     };
     chart.selectedQuadrantIndex = function (value) {
